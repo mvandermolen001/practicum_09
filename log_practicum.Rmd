@@ -16,3 +16,22 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Week 1
 
+In the first week of this project, there will be two key things that need to be done. One, find an appropriate data set and formulate a research question based on the found set. Two, start with an exploratory data analysis.
+
+### Data set
+
+The data that will be used is about penguins, and was originally used in a paper about sexual dimorphism within species\cite{Gorman14}. It contains information about the physical characteristics of 345 penguins on Antartica. 
+
+
+
+\newpage
+
+\begin{thebibliography}{9}
+
+
+\bibitem{Gorman14}
+Gorman KB, Williams TD, Fraser WR (2014) \textit{Ecological Sexual Dimorphism and Environmental Variability within a Community of Antarctic Penguins (Genus Pygoscelis). PLoS ONE 9(3): e90081. doi:10.1371/journal.pone.0090081}
+
+\end{thebibliography}
+
+
