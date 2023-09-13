@@ -1,0 +1,18 @@
+---
+title: "log_thema09"
+author: "mvandermolen"
+date: '2023-09-13'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+/*
+* Copyright (c) 2023 Margriet van der Molen.
+* Licensed under GPLv3. See gpl.md
+*/
+
+## Week 1
+
