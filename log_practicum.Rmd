@@ -77,9 +77,17 @@ ggplot(penguin.data, aes(Species, fill = Sex)) + geom_bar() + scale_x_discrete(g
 In the barplot above we can clearly see that we don't have that many Chinstrap Penguins. The study from which the data was gathered has an explanation for this, there were simply not enough chinstap penguins that were breeding in the rookeries on the island where they studied. The amount of female and male penguins observed is relatively equal to each other, no skewing there.
 
 ```{r}
-ggplot(penguin.data, aes(x = Culmen.Length..mm., y = Culmen.Depth..mm., 
-                         color = Species, shape = Species)) + geom_point()
+ggplot(penguin.data, aes(x=Sex, y=Culmen.Depth..mm., fill=Species)) + 
+    geom_boxplot() + facet_wrap(~Species, scale="free")
 ```
 
+
+```{r}
+plot(penguin.data[9:12], col = penguin.data$Species)
+```
+
+```{r}
+plot(penguin.data[9:12], col = penguin.data$Sex)
+```
 
 
