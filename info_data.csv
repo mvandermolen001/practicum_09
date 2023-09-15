@@ -1,15 +1,18 @@
-studyName,
-Sample Number,
-Species,
-Region,
-Island,
-Stage,
-Individual ID,
-Clutch Completion,
-Date Egg,Culmen Length (mm),
-Culmen Depth (mm),
-Flipper Length (mm),
-Body Mass (g),
-Sex,Delta 15 N (o/oo),
-Delta 13 C (o/oo),
-Comments
+Attribute, Description
+studyName, Abbreviation of the studyname
+Sample Number, ID for the blood sample that was taken
+Species, Species of penguin
+Region, Which region the penguin was found
+Island, Which island the penguin was found
+Stage, Stage in which the penguin lives
+Individual ID, ID for the penguin pairs
+Clutch Completion, Whether or not the nest was completed
+Date Egg, Date at which the egg is observed
+Culmen Length (mm), Length of the culmen in millimeters
+Culmen Depth (mm), Depth of the culmen in millimeters
+Flipper Length (mm), Length of the flipper in millimeters
+Body Mass (g), Weight of the penguin in grams
+Sex, Sex of the penguin
+Delta 15 N (o/oo), isotopic nitrogen found in blood
+Delta 13 C (o/oo), isotopic carbon found in blood
+Comments, additional comments on the penguins

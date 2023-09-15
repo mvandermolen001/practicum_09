@@ -7,6 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(pander)
+library(ggplot2)
 ```
 
 /*
@@ -18,20 +20,66 @@ knitr::opts_chunk$set(echo = TRUE)
 
 In the first week of this project, there will be two key things that need to be done. One, find an appropriate data set and formulate a research question based on the found set. Two, start with an exploratory data analysis.
 
-### Data set
+### The data set
 
-The data that will be used is about penguins, and was originally used in a paper about sexual dimorphism within species\cite{Gorman14}. It contains information about the physical characteristics of 345 penguins on Antartica. 
+The data that will be used is about penguins, and was originally used in a paper about sexual dimorphism within species: 
+
+*Gorman KB, Williams TD, Fraser WR (2014) Ecological Sexual Dimorphism and Environmental Variability within a Community of Antarctic Penguins (Genus Pygoscelis). PLoS ONE 9(3): e90081. doi:10.1371/journal.pone.0090081.*
+
+It contains information about the physical characteristics, sample data, and data about the egg, of 345 penguins on Antartica. The data has been collected from three separate studies.
+
+### Data processing
 
 
+First, we read the .csv
 
-\newpage
+```{r}
+penguin.data <- read.csv("./data/penguins_lter.csv", header = T, na.strings = "NA")
 
-\begin{thebibliography}{9}
+pander(head(penguin.data))
+```
+To clarify what is in the file we've just processed, we add a table with the name of the attribute and a description of it.
+
+```{r}
+info.data <- read.csv("info_data.csv")
+
+pander(info.data)
+```
 
 
-\bibitem{Gorman14}
-Gorman KB, Williams TD, Fraser WR (2014) \textit{Ecological Sexual Dimorphism and Environmental Variability within a Community of Antarctic Penguins (Genus Pygoscelis). PLoS ONE 9(3): e90081. doi:10.1371/journal.pone.0090081}
+Here, we can note that the comments section of the data won't be a great use to our further exploration of the data. In the data frame, we remove this column. We also note that sometimes there's a blank space, to prevent errors we'll be turning those into NA's. The stage attribute is the same for every penguin, it will give us little information, and thus it is removed. Finally, because this data is actually data from 3 separate studies merged together, there's no unique ID for the penguins. It may be useful for us to have such an ID for identification of any outliers, so we add a row that contains an unique ID for each penguin.
 
-\end{thebibliography}
+We note that sex is a character data type currently, because this is a categorial variable, we change it into a factor. We do the same for the species column.
+
+```{r}
+penguin.data <- penguin.data[,-17]
+penguin.data <- penguin.data[,-6]
+
+penguin.data[penguin.data == "" | penguin.data == "."] <- NA
+
+penguin.data$uniqueID <- c(1:nrow(penguin.data))
+
+penguin.data$Sex <- as.factor(penguin.data$Sex)
+penguin.data$Species <- as.factor(penguin.data$Species)
+
+head(penguin.data)
+```
+
+
+### Data exploration
+
+With the data sufficiently processed, we continue with exploring the data to see if we can find further issues or even start to see groups start to form. Let us start with the species, and what number we have per species.
+
+```{r}
+ggplot(penguin.data, aes(Species, fill = Sex)) + geom_bar() + scale_x_discrete(guide = guide_axis(angle = 90))
+```
+
+In the barplot above we can clearly see that we don't have that many Chinstrap Penguins. The study from which the data was gathered has an explanation for this, there were simply not enough chinstap penguins that were breeding in the rookeries on the island where they studied. The amount of female and male penguins observed is relatively equal to each other, no skewing there.
+
+```{r}
+ggplot(penguin.data, aes(x = Culmen.Length..mm., y = Culmen.Depth..mm., 
+                         color = Species, shape = Species)) + geom_point()
+```
+
 
 
