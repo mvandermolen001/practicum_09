@@ -1,5 +1,5 @@
 ---
-title: "logboek thema 9"
+title: "log thema 9"
 author: "Margriet van der Molen"
 date: "2023-09-13"
 output:
@@ -209,4 +209,21 @@ Looking further into our data, when we take into account sex, we see that findin
 
 In terms of correlation, body mass and flipper length share a strong positive correlation. No other attributes seem to be as correlated as these two.
 
+## Week 3
 
+In week 3 we focus on cleaning the data so that we can use it in Weka, and getting started on the Results & Discussion section of the report.
+
+So to get started, let's clean our data. Earlier we added an unique ID cause we thought we might need it, we do not and thus we remove it along with the study name, sample number, individual ID Since clutch completion and region is always the same answer, we also remove that. The date of our egg is not of interest to our research question and thus it is removed. 
+
+
+```{r}
+penguin.data <- penguin.data[,!names(penguin.data) %in% c("studyName", "Sample.Number",
+                                                          "Region", "Individual.ID", "uniqueID",
+                                                          "Clutch.Completion", "Date.Egg")]
+```
+
+We see that we also still have some NA's in the delta N-15 and C-13 columns. In total, those are 17 NA's, so 8 penguins.
+
+```{r}
+sum(is.na(penguin.data[,8:9]))
+```
