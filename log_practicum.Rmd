@@ -1,13 +1,13 @@
 ---
-title: "log_thema09"
-author: "mvandermolen"
+title: "logboek thema 9"
+author: "Margriet van der Molen"
 date: "2023-09-13"
 output:
   pdf_document: default
   html_document: default
 ---
 
-```{r setup, warning=FALSE, message = FALSE}
+```{r setup, message = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(pander)
 library(ggplot2)
@@ -60,7 +60,7 @@ pander(info.data)
 ```
 
 
-Here, we can note that the comments section of the data won't be a great use to our further exploration of the data therefore we remove this column. We previously noted that sometimes there's a blank space, to prevent errors we'll be turning those into NA's. The stage attribute is the same for every penguin, it will give us little relevant information, and thus it is removed. Finally, because this data is actually data from 3 separate studies merged together, there's no unique ID for the penguins. It may be useful for us to have such an ID for identification of any outliers, so we add a row that contains an unique ID for each penguin.
+Here, we can note that the comments section of the data won't be of great use to our further exploration of the data therefore we remove this column. We previously noted that sometimes there's a blank space, to prevent errors we'll be turning those into NA's. The stage attribute is the same for every penguin, it will give us little relevant information, and thus it is removed. Finally, because this data is actually data from 3 separate studies merged together, there's no unique ID for the penguins. It may be useful for us to have such an ID for identification of any outliers, so we add a row that contains an unique ID for each penguin.
 
 The column speaking of the sex of a penguin is of the character data type currently because this is actually a categorical variable, we change it into a factor. We do the same for the species column.
 
@@ -74,14 +74,13 @@ penguin.data$uniqueID <- c(1:nrow(penguin.data))
 
 penguin.data$Sex <- as.factor(penguin.data$Sex)
 penguin.data$Species <- as.factor(penguin.data$Species)
-
-head(penguin.data)
 ```
 
+\newpage
 
-### Data exploration
+### Data exploration univariate
 
-With the data sufficiently processed, we continue with exploring the data to see if we can find further issues or even start to see groups start to form. Let us start with the species, and what number we have per species, and see if the sexes are equally divided. Due to the long label names, we'll change the names of the species to just their common name.
+With the data sufficiently processed for now, we continue with exploring the data to see if we can find further issues or even start to see groups start to form. Let us start with the species, and what number we have per species, and see if the sexes are equally divided. Due to the long label names, we'll change the names of the species to just their common name.
 
 ```{r}
 levels(penguin.data$Species) <- c("Adelie","Chinstrap","Gentoo")
@@ -92,9 +91,35 @@ ggplot(penguin.data, aes(Species, fill = Sex)) + geom_bar() +
 
 In the barplot above we can clearly see that we don't have that many Chinstrap Penguins. The study from which the data was gathered has an explanation for this, there were simply not enough chinstap penguins that were breeding in the rookeries on the island where they studied. The amount of female and male penguins observed is relatively equal to each other, no skewing there. An acceptable about of NA's were found, it doesn't look too bad.
 
-Now that we have an idea of the distribution of penguin species, let's see how some attributes are distributed. This may help us pick up on any extreme outliers. 
+A few statistical tests assume that data is normally distributed, it should follow a bell curve. To check if our data has such a curve, we can look at a few histograms and see if it has the shape we're looking for.
 
-```{r}
+
+```{r, warning=FALSE, message=FALSE}
+hist.depth <- ggplot(penguin.data, aes(x=Culmen.Length..mm., color=Sex, fill = Sex))+ geom_histogram() +   xlab("Culmen length in mm") + ggtitle("Histograms physical characteristics")
+
+hist.length <- ggplot(penguin.data, aes(x=Culmen.Depth..mm., color=Sex, fill = Sex)) + geom_histogram() + 
+  xlab("Culmen depth in mm")
+hist.flip <- ggplot(penguin.data, aes(x=Flipper.Length..mm., color=Sex, fill = Sex)) + geom_histogram() +
+  xlab("Flipper length in mm")
+hist.mass <- ggplot(penguin.data, aes(x=Body.Mass..g., color=Sex, fill = Sex)) + geom_histogram() +
+  xlab("Body mass in gram")
+hist.n15 <- ggplot(penguin.data, aes(x=penguin.data$Delta.15.N..o.oo., color=Sex, fill = Sex))+
+  geom_histogram() +   xlab("Delta N-15 per mille")
+
+hist.c13 <- ggplot(penguin.data, aes(x=penguin.data$Delta.13.C..o.oo., color=Sex, fill = Sex))+
+  geom_histogram() +   xlab("Delta C-13 per mille")
+
+plot_grid(hist.depth, hist.length, hist.flip, hist.mass, hist.n15, hist.c13, label_size = 12, ncol = 2)
+```
+
+In the plot 'histograms of physical characteristics' we can see that the data has 3 peaks in the culmen data and two clear peaks in flipper length and body mass. This can be explained by the fact that we have three species. These species may have wildly varying culmens. To get a clearer look at what may be going on, we can make some boxplots and divide the data into species first and than the sex. This would allow us to see where the averages are, and whether or not this would cause these peaks.
+
+Looking at the delta of the isotopes, the delta N-15 seems to have a vague bell curve but it does not suffer from the several peaks we see in other characteristics. Meanwhile the delta C-13 seems to have a slight skew to the right.
+
+To get a better view on the distribution when taking species into account and to look over potential outliers, we create a few boxplots with the characteristics of our interests.
+
+
+```{r, warning=FALSE}
 plot.15N <- ggplot(penguin.data, aes(x=Sex, y=Delta.15.N..o.oo., fill=Species)) + 
     geom_boxplot() + facet_wrap(~Species, scale="free") +
   scale_x_discrete(guide = guide_axis(angle = 90))+ ylab("Delta N-15 isotope per mille")  + 
@@ -106,11 +131,13 @@ plot.13C <- ggplot(penguin.data, aes(x=Sex, y=Delta.13.C..o.oo., fill=Species)) 
 
 plot_grid(plot.15N, plot.13C, labels = c('15N', '13C'), label_size = 12, ncol = 1)
 ```
-In the plot 'Boxplot of isotope concentrations in mille' we can see that the different isotopes values don't look all that different between the sexes of the difference species. Of course, looks can be deceiving and we will look into this further later. It is also noted that there's quite an amount of NA's in the data set when looking at these attributes.
+
+
+In the plot 'Boxplot of isotope concentrations in mille' we can see that the different isotopes values don't look all that different between the sexes of the difference species. Of course, looks can be deceiving and we will look into this further later. It is also noted that there's quite an amount of NA's in the data set when looking at these attributes. There are a few outliers but nothing too extreme. 
 
 Pressing on, we move on to the physical attributes of the penguin.
 
-```{r}
+```{r, warning=FALSE}
 plot.cl.length <- ggplot(penguin.data, aes(x=Sex, y=Culmen.Length..mm., fill=Species)) + 
     geom_boxplot() + facet_wrap(~Species, scale="free") +
   scale_x_discrete(guide = guide_axis(angle = 90))+ ylab("Culmen length in mm") +
@@ -122,10 +149,11 @@ plot.cl.depth <- ggplot(penguin.data, aes(x=Sex, y=penguin.data$Culmen.Depth..mm
 
 plot_grid(plot.cl.length, plot.cl.depth, ncol = 1)
 ```
-Again, looking at the 'Boxplot Culmen Depth and Length in mm', we stumble into NA's, so it may be beneficial to remove these values later. We can also see that for the Chinstrap and Gentoo penguins culmen depth and length has quite the difference between female and male. The Adelie penguins seem to have less of a difference.
+
+Again, looking at the 'Boxplot Culmen Depth and Length in mm', we stumble into NA's, so it may be beneficial to remove these values later. We can also see that for the Chinstrap and Gentoo penguins culmen depth and length has quite the difference between female and male. The Adelie penguins seem to have less of a difference. There's, again, a few outliers. The culmen length of male Gentoo penguins in particular is quite a diverse range.
 
 
-```{r}
+```{r, warning=FALSE}
 plot.flip.length <- ggplot(penguin.data, aes(x=Sex, y=penguin.data$Flipper.Length..mm., fill=Species)) + 
     geom_boxplot() + facet_wrap(~Species, scale="free") +
   scale_x_discrete(guide = guide_axis(angle = 90))+ ylab("Flipper length in mm") +
@@ -137,26 +165,33 @@ plot.body.mass <- ggplot(penguin.data, aes(x=Sex, y=penguin.data$Body.Mass..g., 
 
 plot_grid(plot.flip.length, plot.body.mass, ncol = 1)
 ```
+
 When looking at 'Boxplot flipper length(mm) and body mass(g)' we can see that Chinstrap and Gentoo penguins are more prone to sexual dimorphism than the Adelie penguins, though even the Adelie penguins appear to have a difference in body mass.
 
-Delving deeper into correlation, we create several scatter plots using the different values. Earlier we showed that some species are more prone to sexual dimorphism, therefore to get a clear visual on it, the choice has been made to take a look at the scatter plot grouped into species and than grouped into the different sexes.
+\newpage
+
+### Data exploration bivariate
+
+Delving deeper into correlation, we create several scatter plots using the different attributes. Earlier we stated that some species are more prone to sexual dimorphism, this means if we can find attributes that help us differentiate species and sexes, we may have quite a fitting attribute on our hands. So we plot both the scatterplot for the species and for the sexes. By plotting both we also hope to clear up any confusion regarding the peaks we saw in our histograms.
 
 
-```{r}
+```{r, warning = FALSE}
 ggpairs(penguin.data[c(9:12, 14, 15)],  columnLabels = c("Culmen length(mm)", 
                                                          "Culmen Depth(mm)", 
                                                          "Flipper length(mm)", 
                                                          "Body mass(g)", "Delta N-15",
                                                          "Delta N-13"),
         ggplot2::aes(colour=penguin.data$Species, alpha = 0.7), 
-        upper = list(continuous = wrap("cor", size = 3)), progress = FALSE)
+        upper = list(continuous = wrap("cor", size = 2.5)), progress = FALSE) + 
+  theme(axis.text = element_text(size = 5)) 
 ```
 
 
-We dive further into the data, using a scatter plot to get a rough idea of the correlation between the different attributes. While there is a lot to go over, some noteworthy findings here is the fact that culmen length and flipper length can aid us in differentiating the species. In fact, culmen length seems to have more of these relations as body mass or the delta N-15 isotopes can also aid us in differentiating species from one another. 
+A scatterplot is used to get a rough idea of the correlation between the different attributes. While we created a lot of plots, some noteworthy findings here is the fact that culmen length or flipper length can aid us in differentiating the species. These attributes also have a notable correlation with on another as does body mass and culmen length. There's still quite a bit of overlap with our three species, the flipper length of Chinstraps and Adelies for example. However, our focus is on differentiating sexes so we continue.
 
-Here, due to the visual benefit and taking into account our research question, it is deemed beneficial to remove the penguins which were not assigned a sex.
-```{r}
+Due to the visual benefit and taking into account our research question, it is deemed beneficial to remove the penguins which were not assigned a sex. This will also be useful because our model will need to be trained with supervision, meaning it will need the answer to whether or not the penguin is male or female. If we can not supply this answer, it is best to remove the instance.
+
+```{r, warning=FALSE}
 penguin.data <- penguin.data[!is.na(penguin.data$Sex),]
 
 ggpairs(penguin.data[c(9:12, 14, 15)],  columnLabels = c("Culmen length(mm)", 
@@ -165,20 +200,13 @@ ggpairs(penguin.data[c(9:12, 14, 15)],  columnLabels = c("Culmen length(mm)",
                                                          "Body mass(g)", "Delta N-15",
                                                          "Delta N-13"),
         ggplot2::aes(colour=penguin.data$Sex, alpha = 0.7), 
-        upper = list(continuous = wrap("cor", size = 3)), 
-        progress = FALSE,  lower = list(continuous = "smooth"))
+        upper = list(continuous = wrap("cor", size = 2.5)), 
+        progress = FALSE,  lower = list(continuous = "smooth")) + 
+  theme(axis.text = element_text(size = 5)) 
 ```
 
-Looking further into our data, when we take into account sex, we see that finding fitting attributes might be harder here. Culmen depth, culmen length, flipper length, and body mass seem to be the best candidates for an attribute that will give us the necessary information to be able to differentiate between the sexes. The NA values are, at this point, a hindrance to the plotting. 
+Looking further into our data, when we take into account sex, we see that finding fitting attributes might be harder here as we have a lot of overlap going on. Culmen depth, culmen length, flipper length, or body mass seem to be the best candidates for an attribute that will give us the necessary information to be able to differentiate between the sexes. 
 
-
-```{r}
-distanceM <- dist(penguin.data[c(9:12, 14, 15)], method = "euclidean")
-clust.obj <- hclust(distanceM, method = "average")
-plot(clust.obj, hang = -1, cex = 0.5)
-
-```
-
-
+In terms of correlation, body mass and flipper length share a strong positive correlation. No other attributes seem to be as correlated as these two.
 
 

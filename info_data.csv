@@ -1,7 +1,7 @@
 Attribute, Description
 studyName, Abbreviation of the studyname
 Sample Number, ID for the blood sample that was taken
-Species, Species of penguin
+Species, Species of penguin (Common name followed by latin name)
 Region, Which region the penguin was found
 Island, Which island the penguin was found
 Stage, Stage in which the penguin lives
@@ -13,6 +13,6 @@ Culmen Depth (mm), Depth of the culmen in millimeters
 Flipper Length (mm), Length of the flipper in millimeters
 Body Mass (g), Weight of the penguin in grams
 Sex, Sex of the penguin
-Delta 15 N (o/oo), isotopic nitrogen found in blood
-Delta 13 C (o/oo), isotopic carbon found in blood
+Delta 15 N (0/00), isotopic nitrogen found in blood in mille
+Delta 13 C (0/00), isotopic carbon found in blood in mille
 Comments, additional comments on the penguins
