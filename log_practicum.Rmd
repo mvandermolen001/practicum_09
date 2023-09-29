@@ -83,6 +83,7 @@ penguin.data$Species <- as.factor(penguin.data$Species)
 With the data sufficiently processed for now, we continue with exploring the data to see if we can find further issues or even start to see groups start to form. Let us start with the species, and what number we have per species, and see if the sexes are equally divided. Due to the long label names, we'll change the names of the species to just their common name.
 
 ```{r}
+# Changes the names of the factor from full latin name with common name to just the common name
 levels(penguin.data$Species) <- c("Adelie","Chinstrap","Gentoo")
 
 ggplot(penguin.data, aes(Species, fill = Sex)) + geom_bar() + 
@@ -192,6 +193,7 @@ A scatterplot is used to get a rough idea of the correlation between the differe
 Due to the visual benefit and taking into account our research question, it is deemed beneficial to remove the penguins which were not assigned a sex. This will also be useful because our model will need to be trained with supervision, meaning it will need the answer to whether or not the penguin is male or female. If we can not supply this answer, it is best to remove the instance.
 
 ```{r, warning=FALSE}
+#Remove missing values from the column which describes the sex of the penguins
 penguin.data <- penguin.data[!is.na(penguin.data$Sex),]
 
 ggpairs(penguin.data[c(9:12, 14, 15)],  columnLabels = c("Culmen length(mm)", 
@@ -222,8 +224,17 @@ penguin.data <- penguin.data[,!names(penguin.data) %in% c("studyName", "Sample.N
                                                           "Clutch.Completion", "Date.Egg")]
 ```
 
-We see that we also still have some NA's in the delta N-15 and C-13 columns. In total, those are 17 NA's, so 8 penguins.
+We see that we also still have some NA's in the delta N-15 and C-13 columns. In total, those are 17 NA's, so 8 penguins. The reasons for these NA is that the blood sample taken from these birds was simply insufficient, there wasn't enough to collect data from. To not skew the data, we've chosen to remove these penguins from our final file.
 
 ```{r}
 sum(is.na(penguin.data[,8:9]))
+
+penguin.data <- na.omit(penguin.data)
 ```
+
+Now we create our final file.
+
+```{r}
+write.csv(penguin.data, "./data/cleaned_penguin_data.csv", row.names = F)
+```
+
