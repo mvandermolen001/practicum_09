@@ -243,7 +243,7 @@ ggpairs(penguin.data[c(9:12, 14, 15)],  columnLabels = c("Culmen length(mm)",
                                                          "Delta N-13"),
         ggplot2::aes(colour=penguin.data$Sex, alpha = 0.7), 
         upper = list(continuous = wrap("cor", size = 2.5)), 
-        progress = FALSE,  lower = list(continuous = "smooth")) + 
+        progress = FALSE ) + 
   theme(axis.text = element_text(size = 5)) 
 ```
 
