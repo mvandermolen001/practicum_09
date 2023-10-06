@@ -262,6 +262,9 @@ So to get started, let's clean our data. Earlier we added an unique ID cause we 
 penguin.data <- penguin.data[,!names(penguin.data) %in% c("studyName", "Sample.Number",
                                                           "Region", "Individual.ID", "uniqueID",
                                                           "Clutch.Completion", "Date.Egg", "Species_Sex")]
+
+# Put the column sex at the end of the file
+penguin.data <- penguin.data[,c(1:6, 8, 9 ,7)]
 ```
 
 We see that we also still have some NA's in the delta N-15 and C-13 columns. In total, those are 17 NA's, so 8 penguins. The reasons for these NA is that the blood sample taken from these birds was simply insufficient, there wasn't enough to collect data from. To not skew the data, we've chosen to remove these penguins from our final file.
@@ -277,4 +280,55 @@ Now we create our final file.
 ```{r}
 write.csv(penguin.data, "./data/cleaned_penguin_data.csv", row.names = F)
 ```
+
+## Week 4
+
+In week 4 we start with machine learning, first we'll have to decide what is important to our dataset, and after such we'll start exploring what algorithms will be best fitted for the data.
+
+### Determining quality metrics
+
+Accuracy will be the most important quality metric of this algorithm. We won't pay much mind to sensitivity and specificity, as we are dealing with male and female penguins. It is as bad to guess a female penguin when it is actually a male penguin as it is to guess a male penguin while it is actually a female penguin. They will be equally measured.
+
+To avoid overfitting, we'll be using 10 fold cross validation.
+
+### Exploring ML algorithms
+
+Keeping the quality metrics in mind, we'll run the Weka Experimenter with the following algorithms:
+ - ZeroR
+ - OneR
+ - J48
+ - NaiveBayes
+ - IBk
+ - SMO
+ - Logistics
+ - RandomForest
+
+All algorithms will be ran with their default parameters. This is just to get an idea of how well these algorithms perform. Later in this log, we'll try to optimize them. 
+ 
+```{r}
+result.explorer <- read.csv("data/test.csv", header = T)
+
+#Turn Key_Scheme into factor for easy plotting
+result.explorer$Key_Scheme <- as.factor(result.explorer$Key_Scheme) 
+levels(result.explorer$Key_Scheme) <- c("NaiveBayes","Logistic", 
+                                        "SMO","IBk", "OneR","ZeroR","J48","RandomForest")
+```
+
+ Because we are interested in what the most accurate algorithm is, we focus on percent_correct column.
+ 
+```{r}
+# Create dataframe with the means of the groups
+percentage.correct <- setNames(aggregate(result.explorer$Percent_correct, 
+                                         list(result.explorer$Key_Scheme),
+                  FUN=mean), c("algorithm", "mean"))
+
+ggplot(percentage.correct, aes(algorithm, mean)) + geom_point() + 
+  scale_x_discrete(guide = guide_axis(angle = 90)) + coord_cartesian(ylim = c(0, 100)) + 
+  ggtitle("Mean precentage correct of algorithms")
+```
+ 
+In the plot above we can see that the algorithms Logistic, SMO, IBk, and RandomForest all score rather well if we're just looking at 
+
+
+
 
