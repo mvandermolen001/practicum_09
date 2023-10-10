@@ -327,8 +327,51 @@ ggplot(percentage.correct, aes(algorithm, mean)) + geom_point() +
   ggtitle("Mean precentage correct of algorithms")
 ```
  
-In the plot above we can see that the algorithms Logistic, SMO, IBk, and RandomForest all score rather well if we're just looking at 
+In the plot above we can see that the algorithms Logistic, SMO, IBk, and RandomForest all score rather well if we're just looking at.
 
+Let's continue to look at some of the details of this accuracy. We'll look at the true positive rate, the true negative rate, false positive, and false negative rate for all the algorithms as well.
+
+```{r}
+#Again, creating the datasets necessary for plotting
+prob.true.pos <- setNames(aggregate(result.explorer$True_positive_rate, 
+                                         list(result.explorer$Key_Scheme),
+                  FUN=mean), c("algorithm", "mean"))
+
+prob.true.neg <- setNames(aggregate(result.explorer$True_negative_rate, 
+                                         list(result.explorer$Key_Scheme),
+                  FUN=mean), c("algorithm", "mean"))
+
+prob.false.neg <- setNames(aggregate(result.explorer$False_negative_rate, 
+                                         list(result.explorer$Key_Scheme),
+                  FUN=mean), c("algorithm", "mean"))
+
+prob.false.pos <- setNames(aggregate(result.explorer$False_positive_rate, 
+                                         list(result.explorer$Key_Scheme),
+                  FUN=mean), c("algorithm", "mean"))
+# Creating the plot objects
+true.pos <- ggplot(prob.true.pos, aes(algorithm, mean)) + geom_point() + 
+  scale_x_discrete(guide = guide_axis(angle = 90)) + coord_cartesian(ylim = c(0, 1)) + 
+  ggtitle("Mean probability true positive rate of algorithms")+ 
+  theme(plot.title = element_text(size=7))
+
+true.neg <- ggplot(prob.true.neg, aes(algorithm, mean)) + geom_point() + 
+  scale_x_discrete(guide = guide_axis(angle = 90)) + coord_cartesian(ylim = c(0, 1)) + 
+  ggtitle("Mean probability true negative rate of algorithms")+ 
+  theme(plot.title = element_text(size=7))
+
+false.neg <- ggplot(prob.false.neg, aes(algorithm, mean)) + geom_point() + 
+  scale_x_discrete(guide = guide_axis(angle = 90)) + coord_cartesian(ylim = c(0, 1)) + 
+  ggtitle("Mean probability false negative rate of algorithms")+ 
+  theme(plot.title = element_text(size=7))
+
+false.pos <- ggplot(prob.false.pos, aes(algorithm, mean)) + geom_point() + 
+  scale_x_discrete(guide = guide_axis(angle = 90)) + coord_cartesian(ylim = c(0, 1)) + 
+  ggtitle("Mean probability false positive rate of algorithms")+
+  theme(plot.title = element_text(size=7))
+# Returning the grid with the made plots
+plot_grid(true.pos, true.neg, false.neg, false.pos)
+```
+While there's no additional weighing going on, it is still nice to get a look at what the algorithms may find more difficult. For example, NaiveBayes seems to be quite adapt at getting the true positives but it struggles with the true negatives which results in a higher false positive rate. RandomForest, an algorithm that was quite accurate, struggles more with getting the true positives right which results in a -slightly- higher false negative rate.
 
 
 
