@@ -281,6 +281,8 @@ Now we create our final file.
 write.csv(penguin.data, "./data/cleaned_penguin_data.csv", row.names = F)
 ```
 
+\newpage
+
 ## Week 4
 
 In week 4 we start with machine learning, first we'll have to decide what is important to our dataset, and after such we'll start exploring what algorithms will be best fitted for the data.
@@ -371,7 +373,77 @@ false.pos <- ggplot(prob.false.pos, aes(algorithm, mean)) + geom_point() +
 # Returning the grid with the made plots
 plot_grid(true.pos, true.neg, false.neg, false.pos)
 ```
+
 While there's no additional weighing going on, it is still nice to get a look at what the algorithms may find more difficult. For example, NaiveBayes seems to be quite adapt at getting the true positives but it struggles with the true negatives which results in a higher false positive rate. RandomForest, an algorithm that was quite accurate, struggles more with getting the true positives right which results in a -slightly- higher false negative rate.
 
+Looking at the accuracy, we'll continue exploring 2 algorithms. RandomForest and the logistics algorithms. Starting with optimizing the parameters. We leave the amount of splitting going on alone but looking at the iteration depth might be useful from a performance standpoint. For that reason, we limit it between 1 and 100 and run the CVParameterSelection tool which tells us that 45 iterations is optimal here.
 
+We do the same for the amount of iterations of the Logistic's algorithm which results in, again, 12 iterations being optimal.
+
+While RandomForest is an ensemble technique, let's also attempt stacking with the 'weaker' algorithms. We'll take IbK, OneR, ZeroR, and a J48 tree and use another J48 tree as our meta learner. In terms of optimizing our parameters, the ibK tree runs with 11 neighbors and to prevent overfitting the first J48 tree runs with 10 in the minObj variable.
+
+
+```{r}
+adjusted.results <- read.csv("data/adjusted_para_results.csv", header = T)
+
+#Turn Key_Scheme into factor for easy plotting
+adjusted.results$Key_Scheme <- as.factor(adjusted.results$Key_Scheme) 
+#Turn Key_Scheme into factor for easy plotting
+levels(adjusted.results$Key_Scheme) <- c("Logistic","Stacking", 
+                                        "ZeroR","RandomForest")
+```
+
+Just like we did with the non-optimized settings, let's now do such with our 'optimized' models. 
+
+```{r}
+# Create dataframe with the means of the groups
+percentage.correct.final <- setNames(aggregate(adjusted.results$Percent_correct, 
+                                         list(adjusted.results$Key_Scheme),
+                  FUN=mean), c("algorithm", "mean"))
+
+ggplot(percentage.correct.final, aes(algorithm, mean)) + geom_point() + 
+  scale_x_discrete(guide = guide_axis(angle = 90)) + coord_cartesian(ylim = c(0, 100)) + 
+  ggtitle("Mean precentage correct of algorithms")
+```
+
+Stacking the simple algorithms together appears to have boosted their performance quite a bit as they are now catching up to Logistic and RandomForest. They are all still performing better than ZeroR, our point of comparison.
+
+```{r}
+#Create matrix with relevant values
+data.comparison <- matrix(c(percentage.correct$mean[percentage.correct$algorithm == "RandomForest"], percentage.correct.final$mean[percentage.correct.final$algorithm == "RandomForest"], percentage.correct$mean[percentage.correct$algorithm == "Logistic"], percentage.correct.final$mean[percentage.correct.final$algorithm == "Logistic"]), ncol=2)
+#Add names to the table
+colnames(data.comparison) <- c("RandomForest", "Logistic")
+rownames(data.comparison) <- c("Non adjusted", "Adjusted")
+
+#Show the table with relevant values
+as.table(data.comparison)
+
+```
+
+In the table above we determine that the Logistic algorithm does perform better with the iterations set at 12 but the RandomForest setting doesn't  perform that much better with iterations set at 45, though the difference is quite small and the performance gained by this setting may make up for it. 
+
+We'll say that the Logistic algorithm with the iterations set at 45 is looking promising and we'll continue with this algorithm to use the WrapperSubsetEval on. There's one more thing to look at, the selection of attributes. For this, we use the WrapperSubsetEval tool and we select the BestSearch for the search method, and we use 10-fold cross validation. This results in the following table: 
+
+!["A picture of the WrapperSubsetEval results"](./data/weka_attribute_result.png)
+
+Here we can see that culmen length, culmen depth, body mass, and delta 15-N were chosen in all of the subsets. Meanwhile island and flipper length were only chosen in 10% of the subsets. Species and delta 13 were both in 90% of the subsets. Let's run our experiment again, but we remove flipper length and island as attributes.
+
+```{r}
+#Remove Island and Flipper Length attributes
+adjusted.penguin.data <- penguin.data[,!names(penguin.data) %in% c("Island","Flipper.Length..mm.")]
+#Save the new csv file
+write.csv(adjusted.penguin.data, "./data/adjusted_penguin_data.csv", row.names = F)
+```
+
+Now, we run the same experiment above with the adjusted dataset.
+
+```{r}
+final.results <- read.csv("data/final_results.csv", header = T)
+
+#Turn Key_Scheme into factor for easy plotting
+final.results$Key_Scheme <- as.factor(adjusted.results$Key_Scheme) 
+#Turn Key_Scheme into factor for easy plotting
+levels(final.results$Key_Scheme) <- c("Logistic","Stacking", 
+                                        "ZeroR","RandomForest")
+```
 
