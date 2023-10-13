@@ -289,7 +289,7 @@ In week 4 we start with machine learning, first we'll have to decide what is imp
 
 ### Determining quality metrics
 
-Accuracy will be the most important quality metric of this algorithm. We won't pay much mind to sensitivity and specificity, as we are dealing with male and female penguins. It is as bad to guess a female penguin when it is actually a male penguin as it is to guess a male penguin while it is actually a female penguin. They will be equally measured.
+Accuracy will be the most important quality metric of this algorithm, and we can use it because our data is not skewed. We won't pay much mind to sensitivity and specificity, as we are dealing with male and female penguins. It is as bad to guess a female penguin when it is actually a male penguin as it is to guess a male penguin while it is actually a female penguin. They will be equally measured.
 
 To avoid overfitting, we'll be using 10 fold cross validation.
 
@@ -397,11 +397,11 @@ Just like we did with the non-optimized settings, let's now do such with our 'op
 
 ```{r}
 # Create dataframe with the means of the groups
-percentage.correct.final <- setNames(aggregate(adjusted.results$Percent_correct, 
+percentage.correct.adjusted <- setNames(aggregate(adjusted.results$Percent_correct, 
                                          list(adjusted.results$Key_Scheme),
                   FUN=mean), c("algorithm", "mean"))
 
-ggplot(percentage.correct.final, aes(algorithm, mean)) + geom_point() + 
+ggplot(percentage.correct.adjusted, aes(algorithm, mean)) + geom_point() + 
   scale_x_discrete(guide = guide_axis(angle = 90)) + coord_cartesian(ylim = c(0, 100)) + 
   ggtitle("Mean precentage correct of algorithms")
 ```
@@ -441,9 +441,41 @@ Now, we run the same experiment above with the adjusted dataset.
 final.results <- read.csv("data/final_results.csv", header = T)
 
 #Turn Key_Scheme into factor for easy plotting
-final.results$Key_Scheme <- as.factor(adjusted.results$Key_Scheme) 
-#Turn Key_Scheme into factor for easy plotting
+final.results$Key_Scheme <- as.factor(final.results$Key_Scheme) 
+#Adjust factor level names
 levels(final.results$Key_Scheme) <- c("Logistic","Stacking", 
                                         "ZeroR","RandomForest")
+#Add new column to the data frame that combines Key Scheme and Key Dataset
+final.results$Key_Data_Scheme <- as.factor(paste(final.results$Key_Dataset, final.results$Key_Scheme, sep = "_"))
 ```
+
+And lastly, we show the scores. Not in plot form this time, this is due to the fact that the improvement is so small that it isn't really visible in a plot
+
+```{r}
+# Create dataframe with the means of the groups
+percentage.correct.final <- setNames(aggregate(final.results$Percent_correct, 
+                                         list(final.results$Key_Data_Scheme),
+                  FUN=mean), c("algorithm", "mean"))
+
+pander(percentage.correct.final)
+```
+
+Logistic, and surprisingly Stacking, both show an improvement. Due to the fact the tool was ran on just the Logistic it makes sense that Logistic is showing the most improvement. While the slight improvement isn't all that significant, what is important is that we can remove two attributes from the data to run our algorithm. 
+
+The Logistic algorithm remains in first place for choice algorithm due to its accuracy and relatively simple workings. Let's take a lot at the ROC of this algorithm. First, we run the explorer with the Logistic algorithm and its mentioned parameters with the adjusted data set, the female penguin are set to the positive value, and after we load it into R.
+
+```{r}
+ROC <- read.csv("./data/ROC_result.arff", header = F, sep = ",", comment.char = "@")
+
+colnames(ROC) <- c("Instance_number","True Positives","False Negatives","False Positives","True Negatives", 
+"False Positive Rate","True Positive Rate", "Precision numeric","Recall","Fallout",
+"FMeasure","Sample Size","Lift","Threshold numeric")
+
+ggplot(data = ROC, aes(y =`True Positive Rate`, x=`False Positive Rate`)) +  
+  geom_point() 
+```
+
+
+
+
 
