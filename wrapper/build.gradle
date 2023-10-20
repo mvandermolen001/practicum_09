@@ -1,0 +1,37 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'java'
+}
+
+group = 'nl.bioinf.wrapper'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable
+    implementation group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version: '3.8.5'
+    // https://mvnrepository.com/artifact/commons-cli/commons-cli
+    implementation group: 'commons-cli', name: 'commons-cli', version: '1.5.0'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
+}
+
+
+test {
+    useJUnitPlatform()
+}
+
+
+jar {
+    manifest {
+        attributes "Main-Class": "nl.bioinf"
+    }
+}
+
+shadowJar {
+    manifest {
+        attributes "Main-Class": "nl.bioinf.WrapClassifier"
+    }
+}

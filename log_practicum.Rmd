@@ -212,6 +212,20 @@ pairwise.t.test(penguin.data$Body.Mass..g.,
 
 Again, within species, the body mass differs significantly from male to female penguins. Adelie females do not differ significantly from Chinstrap females, and Adelie males do not differ from their Chinstrap counterparts.
 
+Later on a decision was made to use a two-way Anova rather than the pairwise t-test. This one was in the following manner.
+
+```{r}
+# Apply a custom lambda function on the columns flipper length and body mass. This function returns
+# the p-values of the anova.
+aov.results <- apply(penguin.data[11:12], 2, FUN = function(x) summary(aov(x~penguin.data$Species*penguin.data$Sex))[[1]]$`Pr(>F)`)[c(1:3),]
+
+rownames(aov.results) <- c("P value two-paired Anova Sex", 
+                           "P value two-paired Anova Species", "P value Species * Sex")
+pander(aov.results)
+```
+
+From the test, it is shown that both flipper length and body mass, the sexes all significantly differ as do the species. In the bottom row, where the p value from the interaction between species and sex is, indicates this interaction has a significant effect on both flipper length and body mass.
+
 \newpage
 
 ### Data exploration bivariate
@@ -467,15 +481,23 @@ The Logistic algorithm remains in first place for choice algorithm due to its ac
 ```{r}
 ROC <- read.csv("./data/ROC_result.arff", header = F, sep = ",", comment.char = "@")
 
-colnames(ROC) <- c("Instance_number","True Positives","False Negatives","False Positives","True Negatives", 
-"False Positive Rate","True Positive Rate", "Precision numeric","Recall","Fallout",
-"FMeasure","Sample Size","Lift","Threshold numeric")
+colnames(ROC) <- c("Instance_number","True Positives","False Negatives",
+                   "False Positives","True Negatives", 
+                   "False Positive Rate","True Positive Rate",
+                   "Precision numeric","Recall","Fallout",
+                   "FMeasure","Sample Size","Lift","Threshold numeric")
 
 ggplot(data = ROC, aes(y =`True Positive Rate`, x=`False Positive Rate`)) +  
   geom_point() 
 ```
 
+The ROC plot above shows us the performance of our chosen algorithm. The area under the curve looks quite good, and while it is not a perfect score of 1, it is certainly no less than 0.5. In fact, if we quickly take a look at the actual score.
 
+```{r}
+tapply(final.results$Area_under_ROC, final.results$Key_Data_Scheme, mean)[1]
+```
+
+We see that the area under the curve should 0.979 which looks to be about correct. With this we conclude that the Logistic algorithm will be the chosen algorithm for our research.
 
 
 
