@@ -2,10 +2,14 @@ package nl.bioinf;
 
 import org.apache.commons.cli.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class OptionProvider {
     private static final String HELP = "help";
     private static final String FILEPATH = "filename";
-    private static final String SINGLECASE = "SingleCase";
+
+    final List<Double> SingleCaseDoubles = new ArrayList<Double>();
     private final String[] clArguments;
     private Options options;
     private CommandLine commandLine;
@@ -24,7 +28,7 @@ public class OptionProvider {
         this.options = new Options();
         Option helpOption = new Option("h", HELP, false, "Prints this message");
         Option fileOption = new Option("f", FILEPATH, false,"Requests the path to a batch file, this file has to be arff.");
-        Option SingleCase = new Option("s", SINGLECASE, false, "Requests the information needed to classify a single case.");
+        Option SingleCase = new Option("s", "SINGLECASE", false, "Requests the information needed to classify a single case.");
         SingleCase.setArgs(6);
         SingleCase.setValueSeparator(',');
 
@@ -35,10 +39,12 @@ public class OptionProvider {
 
     private void processCommandLine(){
         CommandLineParser parser = new DefaultParser();
+        System.out.println(this.options);
         try {
             this.commandLine = parser.parse(this.options, this.clArguments);
-            if (!this.commandLine.hasOption("f") || this.commandLine.hasOption("s")){
-               throw new IllegalArgumentException("Please use either a batch file or process a single penguin");
+            if (this.commandLine.hasOption("s")){
+                String[] singleCaseValues = commandLine.getOptionValues("s");
+                turnToDouble(singleCaseValues);
             }
         } catch (ParseException e) {
             throw new IllegalArgumentException(e);
@@ -52,6 +58,12 @@ public class OptionProvider {
     public void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("WrapClassifier", options);
+    }
+
+    private void turnToDouble(String[] sOptions){
+        for (String item:sOptions) {
+            SingleCaseDoubles.add(Double.parseDouble(item));
+        }
     }
 
 }
