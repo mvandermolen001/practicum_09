@@ -15,7 +15,7 @@ public class SingleInstanceClassifier{
         attempt.gatherData();
     }
 
-    protected Instances gatherData() {
+    private Instances gatherData() {
       // This is testing data
         ArrayList<Double> args = new ArrayList<Double>() {
             {
@@ -33,7 +33,7 @@ public class SingleInstanceClassifier{
     }
 
 
-    protected ArrayList<Attribute> createAttributes(String penguin_species, String penguin_sex, List<Double> singleCaseValues) {
+    private ArrayList<Attribute> createAttributes(String penguin_species, String penguin_sex, List<Double> singleCaseValues) {
 
         ArrayList<Attribute> attributeList = new ArrayList<Attribute>(3);
 
