@@ -32,6 +32,6 @@ jar {
 
 shadowJar {
     manifest {
-        attributes "Main-Class": "nl.bioinf.WrapClassifier"
+        attributes "Main-Class": "nl.bioinf.ArgsRunner"
     }
 }
