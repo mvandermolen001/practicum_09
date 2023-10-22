@@ -16,7 +16,7 @@ public class WrapClassifier {
 
     private void start(){
         //DELETE THIS TEST ONE PLEASE DONT FORGET
-        String test = "/homes/mvandermolen/thema_09/practicum_09/data/adjusted_penguin_data.arff";
+        String test = "";
         System.out.println("Starting WrapClassifier...");
         try{
             Classifier model = loadClassifier();
