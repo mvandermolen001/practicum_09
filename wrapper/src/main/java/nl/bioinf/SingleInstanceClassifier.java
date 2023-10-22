@@ -10,30 +10,25 @@ import weka.core.Instances;
 
 public class SingleInstanceClassifier{
 
-    public static void main(String[] args) {
-        SingleInstanceClassifier attempt = new SingleInstanceClassifier();
-        attempt.gatherData();
+    ArrayList<Double> doubleData = new ArrayList<>();
+    String species;
+    String sex;
+
+    public SingleInstanceClassifier(ArrayList<Double> doubleData, String species, String sex){
+        this.doubleData = doubleData;
+        this.species = species;
+        this.sex = sex;
     }
 
-    private Instances gatherData() {
-      // This is testing data
-        ArrayList<Double> args = new ArrayList<Double>() {
-            {
-                add(53.0);
-                add(65.7);
-                add(1456.0);
-                add(55.54);
-                add(87.32);
-            }};
-        ArrayList<Attribute> pass_on = createAttributes("Gentoo", "FEMALE", args);
-        Instances data = createInstances(pass_on,"Gentoo", "FEMALE", args);
-        System.out.println(data);
+    public Instances gatherData() {
+        ArrayList<Attribute> pass_on = createAttributes();
+        Instances data = createInstances(pass_on,this.species, this.sex, this.doubleData);
         return data;
 
     }
 
 
-    private ArrayList<Attribute> createAttributes(String penguin_species, String penguin_sex, List<Double> singleCaseValues) {
+    private ArrayList<Attribute> createAttributes() {
 
         ArrayList<Attribute> attributeList = new ArrayList<Attribute>(3);
 
@@ -84,6 +79,10 @@ public class SingleInstanceClassifier{
         return data;
 
     }
+
+
+
+}
 
 
 
