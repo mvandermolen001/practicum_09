@@ -1,0 +1,114 @@
+---
+title: "Results_and_Discussion"
+author: "Margriet van der Molen"
+date: "2023-09-29"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(pander)
+library(ggplot2)
+library(cowplot)
+library(GGally)
+penguin.data <- read.csv("./data/penguins_lter.csv", header = T, na.strings = "NA")
+```
+
+```{r}
+penguin.data[penguin.data == "" | penguin.data == "."] <- NA # Change empty spaces and dots into NA's
+
+penguin.data <- penguin.data[,-17] # Remove comments from data table
+penguin.data <- penguin.data[,-6] # Remove stage attribute from data table
+
+```
+
+```{r}
+# Change sex into a factor
+penguin.data$Sex <- as.factor(penguin.data$Sex) 
+#Remove missing values from the column which describes the sex of the penguins
+penguin.data <- penguin.data[!is.na(penguin.data$Sex),]
+
+# Change species into a factor
+penguin.data$Species <- as.factor(penguin.data$Species)
+# Changes the names of the factor from full latin name with common name to just the common name
+levels(penguin.data$Species) <- c("Adelie","Chinstrap","Gentoo")
+
+penguin.data$Species_Sex <- paste(penguin.data$Species, penguin.data$Sex, sep = "_")
+```
+
+## Results
+
+From the Exploratory Data Analysis (EDA) came a few interesting findings. For the research question it is necessary that the data has about the same number of female and male penguins. Figure one shows that this was indeed the case. The difference to the number of Chinstrap penguins to the other species is stark. This means that there is fewer instances of Chinstrap penguins compared to the other species.
+
+```{r, fig.cap = "Number of penguins in the study per species. The bars are divided per sex where the number of female penguins are given a pink colour and the number of male penguins are shown in blue. Within the species, there is an equal number of male to female penguins."}
+ggplot(penguin.data, aes(Species, fill = Sex)) + geom_bar() + 
+  scale_x_discrete(guide = guide_axis(angle = 90)) + ggtitle("Count of sexes per species")
+```
+
+To start, a few boxplots were created to get a sense of the distribution. These boxplots were grouped into the species and the sex.
+
+```{r, warning=FALSE, fig.cap="Boxplots of the flipper length attribute and body mass attribute. For flipper length Adelie penguins have a few outliers. For body mass Chinstraps have small outliers."}
+plot.flip.length <- ggplot(penguin.data, aes(x=Sex, y=penguin.data$Flipper.Length..mm., fill=Species)) + 
+    geom_boxplot() + facet_wrap(~Species, scale="free") +
+  scale_x_discrete(guide = guide_axis(angle = 90))+ ylab("Flipper length in mm") +
+  ggtitle("Boxplot physical attributes by species and gender")
+
+plot.body.mass <- ggplot(penguin.data, aes(x=Sex, y=penguin.data$Body.Mass..g., fill=Species)) + 
+    geom_boxplot() + facet_wrap(~Species, scale="free") +
+  scale_x_discrete(guide = guide_axis(angle = 90))+ ylab("Bodymass in gram")
+
+plot_grid(plot.flip.length, plot.body.mass, ncol = 1)
+```
+
+When looking at figure 2, it is shown that Chinstrap and Gentoo penguins are more prone to sexual dimorphism in terms of the flipper length attribute than the Adelie penguins, though even the Adelie penguins appear to have a difference in body mass. With the information of the boxplot shown in figure 2, a two-way Anova was done.  
+
+
+```{r}
+# Apply a custom lambda function on the columns flipper length and body mass. This function returns
+# the p-values of the anova.
+aov.results <- apply(penguin.data[11:12], 2, FUN = function(x) summary(aov(x~penguin.data$Species*penguin.data$Sex))[[1]]$`Pr(>F)`)[c(1:3),]
+
+rownames(aov.results) <- c("P value two-paired Anova Sex", 
+                           "P value two-paired Anova Species", "P value Species * Sex")
+pander(aov.results)
+```
+
+From the test, it is shown that both flipper length and body mass, the sexes all significantly differ as do the species. In the bottom row, where the p value from the interaction between species and sex is, indicates this interaction has a significant effect on both flipper length and body mass.
+
+Correlation was explored by using scatter plots and correlation scores, while distribution of the physical characteristics is shown on the diagonal. 
+
+
+```{r, warning=FALSE, fig.cap="Scatter plots and correlation scores given of several attributes. Body mass and flipper length are said to have the strongest positive correlation while flipper length and culmen depth have the strongest negative correlation.The starts indicate the strength of the p value of the correlation test. 1 star is a p-value of 0.5, 2 stars is a value of 0.01, 3 stars is a p-value of 0.001."}
+ggpairs(penguin.data[c(9:12, 14, 15)],  columnLabels = c("Culmen length(mm)", 
+                                                         "Culmen Depth(mm)", 
+                                                         "Flipper length(mm)", 
+                                                         "Body mass(g)", "Delta N-15",
+                                                         "Delta N-13"),
+        ggplot2::aes(colour=penguin.data$Sex, alpha = 0.7), 
+        upper = list(continuous = wrap("cor", size = 2.5)), 
+        progress = FALSE ) + 
+  theme(axis.text = element_text(size = 5)) 
+```
+
+Some scatter plots in figure 3 seem better divided than others. Body mass and flipper length in particular shows a strong positive correlation as the correlation score proves. In the plot that shows culmen depth and body mass, there's a notable division between two groups. The same occurs with flipper length and culmen depth.
+
+In figure 3, the culmen length histogram appears to have two very clear peaks. This can also be applied to the culmen depth histogram. For flipper length, there's a peak at, approximately, 190 mm and another at 210 and 220 mm for both male and female penguins. When looking at body mass, female penguins tend to range between 2500 gram to around 5000 gram where as the male penguins range between 3500 gram and 6500 gram. The delta N-15 attribute peaks slightly at the values between 8 and 8.5 mille, and gradually declines in height. For the delta C-13 attribute, there is one peak at approximately -26 per mille of the plot, and after the peak it becomes more uniform in shape.
+
+## Discussion
+
+In figure 1 the amount of Chinstraps was significantly lower than the other species. This means that the data set is slightly imbalanced, however it should not have a big effect as the research question's main concern is about the sex of the penguins where there are no imbalances within species.
+
+While looking at the histograms of figure 3, it was noted that some of the figures have more than one peak which can be explained by the fact that there are several species in this dataset. The scatterplots in figure 2 also showed several 'groups' forming in the culmen depth, culmen length, flipper length, and body mass characteristic. It is likely that these peaks and groups are caused by the fact that different species have a different distributions of the physical characteristics. Something that is visible in the boxplot of figure 2 with the flipper length and body mass attributes. Here it is already visible that between species there is some difference and within species, there also seems to be a difference between the sexes. A two way anova proves there is a significant difference between the penguin sexes and species, along with that fact that the interaction between sex and species also has an effect on the two attributes. Looking back to the histograms of figure 3, there's now a possible explanation for the different peaks that are shown within the graph. 
+
+The scatter plots in figure 3 also showed correlation. In the model, correlation can be used to predict certain attributes. Flipper length and body mass have a strong positive correlation, if a penguin has more mass it will likely need broader flippers to move forward. Correlation combined with the findings of the anova could mean that flipper length and body mass could be attributes of interest for our model.
+
+\newpage
+
+## Conclusion
+
+The EDA showed that different species have different averages across the attributes which causes different peaks when looked at in a histogram. Within the species, male penguins differ significantly from their female counterparts.
+
+Flipper length, body mass, and culmen depth due to their correlation will be useful attributes for the model. Flipper length and body mass in particular as these attributes were shown to be significantly different within species.
+
+
+

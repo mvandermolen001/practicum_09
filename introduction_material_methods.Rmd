@@ -1,0 +1,62 @@
+---
+title: "Introduction"
+author: "Margriet van der Molen"
+date: "2023-10-10"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+Most species of penguins appear not to prone to sexual dimporhism. This is to say, the male penguins don't look very different from the female penguins and even their behavior can be quite similar. This causes an issue when researching penguins as, sometimes, male penguins are identified to be female penguins or the other way around. These issues can be especially troubling when breeding programs might need to be put up. A problem that will become more prevalent as temperatures rise and certain penguin species' habitats disappear. 
+
+In an attempt to aid the researchers in distinguishing male and female penguins, machine learning could well be an option to predict the sex of a penguin. The predictions will be based on physical characteristics of the penguins, and these penguins will come from 3 different species. As such, this paper will focus on answering the following question:
+
+"How accurately can a machine learning model predict the sex of a penguin when given the measurements of some physical attributes"
+
+
+\newpage
+
+
+# Materials and Methods
+
+This paper used Weka\cite{WEKA2016} for the machine learning algorithms, it also used R (version 4.0.4) for graphing, logging, and reporting the findings. The data that was used to train the model with is, predictably, about penguins, and was originally used in a paper about ecological sexual dimorphism where they examined if environmental variability is associated with differences in the foraging niches of the male and female penguins\cite{Gorman2014}. The data contains information about the location, physical characteristics, sample data, and data about the egg, of 345 penguins on Antartica. While all penguins were from the Anvers region, they were not all from the same island. All the penguins were nesting and blood samples, measurements, and molecular sexing, was all done when they were at the one-egg stage.
+
+```{r}
+info.data <- read.csv("info_data.csv")
+
+pander(info.data)
+```
+
+
+The delta C-13 and N-15 values were found using an elemental analyzer interfaced with an isotope ratio mass spectrometer at the Stable Isotope Facility, University of California, and calculated using the following equation:
+
+$$\delta{N15 or C13}=( \frac{\delta R_{sample}} {\delta R_{standard}} - 1 ) * 1000$$
+
+Here the R_sample is the ratio of found C-13 to C - 12 or N-15 to N-14 in the sample. The R_standard is the standard ratio for international standards (Vienna PeeDee Belemnite for carbon, and atmospheric N2 (Air) for nitrogen ).
+
+\newpage
+
+First an exploratory data analysis (EDA) was done to determine what attributes may be of value for the algorithm. This was done through the creation of box plots, bar plots, scatter plots, and two-way ANOVAs.
+
+Accuracy and simplicity of algorithm were important qualities for the algorithm. Accuracy due to the nature of the research question. 
+
+
+\begin{thebibliography}{9}
+
+\bibitem{WEKA2016}
+Eibe Frank, Mark A. Hall, and Ian H. Witten (2016). \textit {The WEKA Workbench. Online Appendix for "Data Mining: Practical Machine Learning Tools and Techniques", Morgan Kaufmann, Fourth Edition, 2016.}
+
+\bibitem{Pander}
+Daróczi G, Tsegelskyi R (2022).: \textit {pander:  An R ’Pandoc’ Writer. R package version 0.6.5},https://CRAN.R-project.org/package=pander
+
+\bibitem{Gorman2014}
+Gorman KB, Williams TD, Fraser WR (2014)\textit {Ecological Sexual Dimorphism and Environmental Variability within a Community of Antarctic Penguins (Genus Pygoscelis). PLoS ONE 9(3): e90081.}, doi:10.1371/journal.pone.0090081
+
+
+
+
+\end{thebibliography}
