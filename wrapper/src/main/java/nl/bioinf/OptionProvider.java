@@ -7,12 +7,16 @@ import java.util.List;
 
 public class OptionProvider {
     private static final String HELP = "help";
-    private static final String FILEPATH = "filename";
 
-    final List<Double> SingleCaseDoubles = new ArrayList<Double>();
+    final List<Double> SingleCaseDoubles = new ArrayList<>();
+
+    private List<String> singlecaseString = new ArrayList<>();
     private final String[] clArguments;
     private Options options;
     private CommandLine commandLine;
+
+    private String filepath;
+
 
     public OptionProvider(final String[] args){
         this.clArguments = args;
@@ -27,9 +31,12 @@ public class OptionProvider {
     private void buildOptions(){
         this.options = new Options();
         Option helpOption = new Option("h", HELP, false, "Prints this message");
-        Option fileOption = new Option("f", FILEPATH, false,"Requests the path to a batch file, this file has to be arff.");
-        Option SingleCase = new Option("s", "SINGLECASE", false, "Requests the information needed to classify a single case.");
-        SingleCase.setArgs(6);
+        Option fileOption = new Option("f", "FILEPATH", true,"Requests the path to a batch file, this file has to be arff.");
+        Option SingleCase = new Option("s", "SINGLECASE", true, "Requests the" +
+                " information needed to classify a single case. Fill in your values and separate them with a ','." +
+                "Please make sure the argument uses the following order:Species, culmen depth, culmen length, bodymass," +
+                "delta N15, delta N13, Sex");
+        SingleCase.setArgs(8);
         SingleCase.setValueSeparator(',');
 
         options.addOption(helpOption);
@@ -39,12 +46,14 @@ public class OptionProvider {
 
     private void processCommandLine(){
         CommandLineParser parser = new DefaultParser();
-        System.out.println(this.options);
         try {
             this.commandLine = parser.parse(this.options, this.clArguments);
             if (this.commandLine.hasOption("s")){
-                String[] singleCaseValues = commandLine.getOptionValues("s");
-                turnToDouble(singleCaseValues);
+                singlecaseString = List.of(commandLine.getOptionValues("s"));
+                turnToDouble(singlecaseString.subList(1, 6));
+            }
+            if (this.commandLine.hasOption("f")){
+                this.filepath = commandLine.getOptionValue("f");
             }
         } catch (ParseException e) {
             throw new IllegalArgumentException(e);
@@ -60,10 +69,17 @@ public class OptionProvider {
         formatter.printHelp("WrapClassifier", options);
     }
 
-    private void turnToDouble(String[] sOptions){
+    private void turnToDouble(List<String> sOptions){
         for (String item:sOptions) {
             SingleCaseDoubles.add(Double.parseDouble(item));
         }
     }
 
+    public List<Double> getSingleCaseDoubles() {
+        return this.SingleCaseDoubles;
+    }
+
+    public String getFilepath() {
+        return filepath;
+    }
 }
