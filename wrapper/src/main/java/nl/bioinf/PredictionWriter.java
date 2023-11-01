@@ -17,8 +17,9 @@ public class PredictionWriter {
     public void writeToFile(){
         try {
             FileWriter writer = new FileWriter(filename);
+            writer.write("SPECIES,CULMEN LENGTH,CULMEN DEPTH,BODYWEIGHT, DELTA N15,DELTA C13, SEX" + "\n");
             for (int index = 0; index < data.numInstances(); index++){
-                writer.write(String.valueOf(data.get(index) + "\n"));
+                writer.write(data.get(index) + "\n");
             }
             writer.close();
         } catch (IOException e) {
