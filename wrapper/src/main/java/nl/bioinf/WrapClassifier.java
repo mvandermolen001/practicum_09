@@ -1,4 +1,5 @@
 package nl.bioinf;
+
 import weka.classifiers.Classifier;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
@@ -6,28 +7,26 @@ import weka.core.converters.ConverterUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
-public class WrapClassifier {
-    public static void main(String[] args){
-        WrapClassifier wrapper = new WrapClassifier();
-        wrapper.start();
+public class WrapClassifier{
+
+    String filepath;
+
+    public WrapClassifier(String filepath){
+        this.filepath = filepath;
     }
 
-    private void start(){
-        //DELETE THIS TEST ONE PLEASE DONT FORGET
-        String test = "";
-        System.out.println("Starting WrapClassifier...");
+    public WrapClassifier(){
+    }
+
+    public Instances start(){
         try{
             Classifier model = loadClassifier();
-            Instances data = loadData(test);
-            System.out.println(data.toSummaryString());
-            Instances predictions = classifyData(model, data);
-            System.out.println(predictions);
+            Instances data = loadData(this.filepath);
+            return classifyData(model, data);
         } catch (Exception e){
             throw new RuntimeException("Error occurred during runtime...");
         }
-        // Create predictions
     }
 
     private Instances loadData(String filePath) throws Exception {
@@ -42,23 +41,20 @@ public class WrapClassifier {
         return data;
     }
 
-    private Classifier loadClassifier() throws IOException {
-        // Get Logistic Model from the resources file
-        URL url = getClass().getResource("/Logistic_Model.model");
+    public Classifier loadClassifier() throws IOException {
         try {
-            // Double check that it isn't null
-            assert url != null;
             // Return a classifier with the resource file
-            return (Classifier) SerializationHelper.read(url.getFile());
+            return (Classifier) SerializationHelper.read("D:\\java_practice\\data\\Logistic_Model.model");
         } catch (Exception e) {
             throw new IOException("Could not read from file..." + e.getMessage());
         }
     }
 
-    private Instances classifyData(Classifier model, Instances data) {
+    public Instances classifyData(Classifier model, Instances data) {
         Instances labeled = new Instances(data);
+        // label each instance from data
         for (int index = 0; index < data.numInstances(); index++) {
-            double label = 0;
+            double label;
             try {
                 label = model.classifyInstance(data.instance(index));
             } catch (Exception e) {
@@ -68,6 +64,5 @@ public class WrapClassifier {
         }
         return labeled;
     }
-
 
 }
