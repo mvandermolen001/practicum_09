@@ -10,12 +10,13 @@ public class OptionProvider {
 
     final List<Double> SingleCaseDoubles = new ArrayList<>();
 
-    private List<String> singlecaseString = new ArrayList<>();
     private final String[] clArguments;
     private Options options;
     private CommandLine commandLine;
 
     private String filepath;
+    private String species;
+    private String sex;
 
 
     public OptionProvider(final String[] args){
@@ -34,14 +35,16 @@ public class OptionProvider {
         Option fileOption = new Option("f", "FILEPATH", true,"Requests the path to a batch file, this file has to be arff.");
         Option SingleCase = new Option("s", "SINGLECASE", true, "Requests the" +
                 " information needed to classify a single case. Fill in your values and separate them with a ','." +
-                "Please make sure the argument uses the following order:Species, culmen depth, culmen length, bodymass," +
+                "Please make sure the argument uses the following order: Species, culmen depth, culmen length, bodymass," +
                 "delta N15, delta N13, Sex");
+        Option writeOption = new Option("w","write", false, "If option given, the result will be written to a file");
         SingleCase.setArgs(8);
         SingleCase.setValueSeparator(',');
 
         options.addOption(helpOption);
         options.addOption(fileOption);
         options.addOption(SingleCase);
+        options.addOption(writeOption);
     }
 
     private void processCommandLine(){
@@ -49,8 +52,10 @@ public class OptionProvider {
         try {
             this.commandLine = parser.parse(this.options, this.clArguments);
             if (this.commandLine.hasOption("s")){
-                singlecaseString = List.of(commandLine.getOptionValues("s"));
+                List<String> singlecaseString = List.of(commandLine.getOptionValues("s"));
                 turnToDouble(singlecaseString.subList(1, 6));
+                this.species = singlecaseString.get(0);
+                this.sex = singlecaseString.get(7);
             }
             if (this.commandLine.hasOption("f")){
                 this.filepath = commandLine.getOptionValue("f");
@@ -64,6 +69,10 @@ public class OptionProvider {
         return this.commandLine.hasOption(HELP);
     }
 
+    public boolean hasWrite(){
+        return this.commandLine.hasOption("w");
+    }
+
     public void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("WrapClassifier", options);
@@ -75,11 +84,19 @@ public class OptionProvider {
         }
     }
 
-    public List<Double> getSingleCaseDoubles() {
-        return this.SingleCaseDoubles;
+    public ArrayList<Double> getSingleCaseDoubles() {
+        return (ArrayList<Double>) SingleCaseDoubles;
     }
 
     public String getFilepath() {
         return filepath;
+    }
+
+    public String getSpecies() {
+        return species;
+    }
+
+    public String getSex() {
+        return sex;
     }
 }
