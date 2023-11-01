@@ -1,8 +1,9 @@
 package nl.bioninf;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
+import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -10,9 +11,9 @@ import weka.core.Instances;
 
 public class SingleInstanceClassifier{
 
-    ArrayList<Double> doubleData = new ArrayList<>();
-    String species;
-    String sex;
+    private ArrayList<Double> doubleData = new ArrayList<>();
+    private final String species;
+    private final String sex;
 
     public SingleInstanceClassifier(ArrayList<Double> doubleData, String species, String sex){
         this.doubleData = doubleData;
@@ -22,9 +23,12 @@ public class SingleInstanceClassifier{
 
     public Instances gatherData() {
         ArrayList<Attribute> pass_on = createAttributes();
-        Instances data = createInstances(pass_on,this.species, this.sex, this.doubleData);
-        return data;
-
+        Instances data = createInstances(pass_on);
+        try {
+            return classifyInstance(data);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -63,14 +67,13 @@ public class SingleInstanceClassifier{
         return attributeList;
     }
 
-    private Instances createInstances(ArrayList<Attribute> attributeList, String penguin_species, String penguin_sex,
-                                      List<Double> singleCaseValues){
+    private Instances createInstances(ArrayList<Attribute> attributeList){
         Instances data = new Instances("SingleCaseData",attributeList,1);
         Instance inst = new DenseInstance(data.numAttributes());
-        inst.setValue(attributeList.get(0), penguin_species);
-        inst.setValue(attributeList.get(6), penguin_sex);
+        inst.setValue(attributeList.get(0), this.species);
+        inst.setValue(attributeList.get(6), this.sex);
         for (int i = 1; i < attributeList.size()-1; i++) {
-            inst.setValue(attributeList.get(i), singleCaseValues.get(i-1));
+            inst.setValue(attributeList.get(i), this.doubleData.get(i-1));
 
         }
         data.add(inst);
@@ -80,10 +83,9 @@ public class SingleInstanceClassifier{
 
     }
 
-
-
-}
-
-
-
+    private Instances classifyInstance(Instances data) throws IOException {
+        WrapClassifier classifier = new WrapClassifier();
+        Classifier model = classifier.loadClassifier();
+        return classifier.classifyData(model, data);
+    }
 }
