@@ -36,7 +36,19 @@ levels(penguin.data$Species) <- c("Adelie","Chinstrap","Gentoo")
 penguin.data$Species_Sex <- paste(penguin.data$Species, penguin.data$Sex, sep = "_")
 ```
 
-## Results
+```{r}
+final.results <- read.csv("data/final_results.csv", header = T)
+
+#Turn Key_Scheme into factor for easy plotting
+final.results$Key_Scheme <- as.factor(final.results$Key_Scheme) 
+#Adjust factor level names
+levels(final.results$Key_Scheme) <- c("Logistic","Stacking", 
+                                        "ZeroR","RandomForest")
+#Add new column to the data frame that combines Key Scheme and Key Dataset
+final.results$Key_Data_Scheme <- as.factor(paste(final.results$Key_Dataset, final.results$Key_Scheme, sep = "_"))
+```
+
+# Results
 
 From the Exploratory Data Analysis (EDA) came a few interesting findings. For the research question it is necessary that the data has about the same number of female and male penguins. Figure one shows that this was indeed the case. The difference to the number of Chinstrap penguins to the other species is stark. This means that there is fewer instances of Chinstrap penguins compared to the other species.
 
@@ -68,9 +80,9 @@ When looking at figure 2, it is shown that Chinstrap and Gentoo penguins are mor
 # the p-values of the anova.
 aov.results <- apply(penguin.data[11:12], 2, FUN = function(x) summary(aov(x~penguin.data$Species*penguin.data$Sex))[[1]]$`Pr(>F)`)[c(1:3),]
 
-rownames(aov.results) <- c("P value two-paired Anova Sex", 
-                           "P value two-paired Anova Species", "P value Species * Sex")
-pander(aov.results)
+rownames(aov.results) <- c("two-paired Anova Sex", 
+                           "two-paired Anova Species", "Species * Sex")
+pander(aov.results, caption = "A table with the p values for the two-way ANOVA. First with just flipper length and body mass, and lastly showing the interaction of the two on determining the sex. ")
 ```
 
 From the test, it is shown that both flipper length and body mass, the sexes all significantly differ as do the species. In the bottom row, where the p value from the interaction between species and sex is, indicates this interaction has a significant effect on both flipper length and body mass.
@@ -94,7 +106,87 @@ Some scatter plots in figure 3 seem better divided than others. Body mass and fl
 
 In figure 3, the culmen length histogram appears to have two very clear peaks. This can also be applied to the culmen depth histogram. For flipper length, there's a peak at, approximately, 190 mm and another at 210 and 220 mm for both male and female penguins. When looking at body mass, female penguins tend to range between 2500 gram to around 5000 gram where as the male penguins range between 3500 gram and 6500 gram. The delta N-15 attribute peaks slightly at the values between 8 and 8.5 mille, and gradually declines in height. For the delta C-13 attribute, there is one peak at approximately -26 per mille of the plot, and after the peak it becomes more uniform in shape.
 
-## Discussion
+
+After determining what attributes may be useful, all previously mentioned algorithms were ran, taking into account the simplicity, and accuracy of these algorithms.
+
+```{r, fig.cap="A figure showing the mean percentage correct of algorithms. Here the y-axis goes from 0 to a hundred 100%. The Logistic algorithm algorithm along with SMO and RandomForest are amongst the top performing algorithm while Zero-R, One-R, and NaiveBayes are amongst the lowest."}
+# Create dataframe with the means of the groups
+percentage.correct <- setNames(aggregate(result.explorer$Percent_correct, 
+                                         list(result.explorer$Key_Scheme),
+                  FUN=mean), c("algorithm", "mean"))
+
+ggplot(percentage.correct, aes(algorithm, mean)) + geom_point() + 
+  scale_x_discrete(guide = guide_axis(angle = 90)) + coord_cartesian(ylim = c(0, 100)) + 
+  ggtitle("Mean precentage correct of algorithms")
+```
+
+Figure 4 shows the mean of the accuracy value of the algorithms. All algorithms are out-performing Zero-R but the Logistic algorithm and the RandomForest make up the top two. Therefore, these two algorithms were chosen to focus and from the other algorithms, Zero-R, One-R, J48, and IBk were used for stacking with another J48 tree as the meta-learner.
+
+The CVParameterSelection tool was used to determine that the iteration depth of the RandomForest algorithm should be sat at 45 and the iteration depth of the Logistic algorithm should be sat at 12. For the algorithms in the Stacking ensemble learner, the neighbours of the IBk tree was put to 11, and the J48 tree that is not the meta learner the variable 'minObj' was put to 10.
+
+```{r, fig.cap="The mean percentage correct of the algorithms where the parameters were adjusted except for Zero-R which was ran with the default settings. Here, Logistic is the best performing though RandomForest and Stacking are not far behind."}
+# Create dataframe with the means of the groups
+percentage.correct.adjusted <- setNames(aggregate(adjusted.results$Percent_correct, 
+                                         list(adjusted.results$Key_Scheme),
+                  FUN=mean), c("algorithm", "mean"))
+
+ggplot(percentage.correct.adjusted, aes(algorithm, mean)) + geom_point() + 
+  scale_x_discrete(guide = guide_axis(angle = 90)) + coord_cartesian(ylim = c(0, 100)) + 
+  ggtitle("Mean precentage correct of algorithms")
+```
+
+In figure 5, the finer details of the plot are hard to see as the values are much too close to each other. However, again, all algorithms are out-performing Zero-R. Stacking the simpler algorithms together has boosted their performance as they are now able to catch up to RandomForest and Logistic.
+
+To get a clearer view on the scores a table was made that compared the top two performing algorithms, RandomForest and Logistic, with the scores before and after adjusting the parameters.
+
+```{r}
+#Create matrix with relevant values
+data.comparison <- matrix(c(percentage.correct$mean[percentage.correct$algorithm == "RandomForest"], percentage.correct.adjusted$mean[percentage.correct.adjusted$algorithm == "RandomForest"], percentage.correct$mean[percentage.correct$algorithm == "Logistic"], percentage.correct.adjusted$mean[percentage.correct.adjusted$algorithm == "Logistic"]), ncol=2)
+#Add names to the table
+colnames(data.comparison) <- c("RandomForest", "Logistic")
+rownames(data.comparison) <- c("Non adjusted", "Adjusted")
+
+#Show the table with relevant values
+pander(as.table(data.comparison, caption = "Table with mean percentage correct scores for the RandomForest and Logistic algorithm. First the non-adjusted, with default parameters, score and on the second row the scores after adjusting the parameters."))
+
+```
+In the table above it is determined that the Logistic algorithm does perform better with the iterations set at 12, though the improvement is rather minor. The RandomForest setting does not  perform better with iterations set at 45.
+
+For attribute selection the WrapperSubsetEval tool and the BestSearch for the search method, 10-fold cross validation was used. The tool was ran on the Logistic algorithm. All attributes that were in 80% of the runs were kept while others were deleted. This resulted in the removal of the flipper length attribute and the island attribute.
+
+Again, WEKA was ran with the four algorithms that were used last time. Zero-R, Stacking, Logistic, and RandomForest, all with the optimized parameters and with 10-fold cross validation. This resulted in a table with the following mean correct percentage scores:
+
+```{r}
+# Create dataframe with the means of the groups
+percentage.correct.final <- setNames(aggregate(final.results$Percent_correct, 
+                                         list(final.results$Key_Data_Scheme),
+                  FUN=mean), c("algorithm", "mean"))
+
+pander(percentage.correct.final, caption = "Table with the different algorithms and data sets. The cleaned data set refers to the dataset before the WrapperSubsetEval tool was ran and the adjusted data set refers to the dataset after the WrapperSubsetEval was ran. The mean is a mean percentage correct scores.")
+```
+
+Logistic and Stacking both show an improvement, whereas RandomForest shows a decrease in correct predictions. ZeroR, as predicted, shows neither improvement nor a decrease.
+
+The results of the Logistic algorithm with adjusted data set and adjusted parameters were looked at further with a ROC curve where the positive value is the female penguin value.
+
+```{r, fig.cap="ROC curve from the adjusted Logistic algorithm with the adjusted data set. The line was made by moving the classification threshold which in term results in different true posistive rates (y axis) and false positive rates (x-axis)."}
+ROC <- read.csv("./data/ROC_result.arff", header = F, sep = ",", comment.char = "@")
+
+colnames(ROC) <- c("Instance_number","True Positives","False Negatives",
+                   "False Positives","True Negatives", 
+                   "False Positive Rate","True Positive Rate",
+                   "Precision numeric","Recall","Fallout",
+                   "FMeasure","Sample Size","Lift","Threshold numeric")
+
+ggplot(data = ROC, aes(y =`True Positive Rate`, x=`False Positive Rate`)) +  
+  geom_point() 
+```
+The ROC plot above shows the performance of the Logistic algorithm. The area under the curve appears to be above 0.8 which is an excellent score as the perfect score would be 1. As a result of the different mean correct percentage scores, and the above ROC curve, the Logistic algorithm is chosen as the algorithm to use in the Java wrapper.
+
+\newpage
+
+
+# Discussion
 
 In figure 1 the amount of Chinstraps was significantly lower than the other species. This means that the data set is slightly imbalanced, however it should not have a big effect as the research question's main concern is about the sex of the penguins where there are no imbalances within species.
 
@@ -102,9 +194,10 @@ While looking at the histograms of figure 3, it was noted that some of the figur
 
 The scatter plots in figure 3 also showed correlation. In the model, correlation can be used to predict certain attributes. Flipper length and body mass have a strong positive correlation, if a penguin has more mass it will likely need broader flippers to move forward. Correlation combined with the findings of the anova could mean that flipper length and body mass could be attributes of interest for our model.
 
+
 \newpage
 
-## Conclusion
+# Conclusion
 
 The EDA showed that different species have different averages across the attributes which causes different peaks when looked at in a histogram. Within the species, male penguins differ significantly from their female counterparts.
 
