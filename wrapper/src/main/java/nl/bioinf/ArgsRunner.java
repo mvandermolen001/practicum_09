@@ -2,8 +2,16 @@ package nl.bioinf;
 
 import java.util.Arrays;
 
+/**
+ * Main class of the package. Parses the user arguments using Apache CLI.
+ * @author Margriet
+ */
 public class ArgsRunner {
 
+    /**
+     * @param args
+     *       the command line arguments given by user
+     */
     public static void main(final String[] args) {
         try {
             OptionProvider op = new OptionProvider(args);

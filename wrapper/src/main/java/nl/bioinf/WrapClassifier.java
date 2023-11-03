@@ -9,17 +9,36 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+/**
+ * Wrapper classifier class. Classifies the given data using the model provided in the resources' folder.
+ * @author Margriet
+ */
 public class WrapClassifier{
 
+    /**
+     * Filepath given by user if user chooses for bulk data
+     */
     String filepath;
 
+    /**
+     * Constructor used when user gives a filepath
+     * @param filepath
+     *        User given file path
+     */
     public WrapClassifier(String filepath){
         this.filepath = filepath;
     }
 
+    /**
+     * Constructor used when user chooses single instance classification
+     */
     public WrapClassifier(){
     }
 
+    /**
+     * Start method for starting the program when bulk data is given.
+     * @return the classified instances
+     */
     public Instances start(){
         try{
             Classifier model = loadClassifier();
@@ -30,6 +49,14 @@ public class WrapClassifier{
         }
     }
 
+    /**
+     * Gathers data from user and stores them in weka instances
+     * @param filePath
+     *        given filepath
+     * @return user data as weka instances
+     * @throws IllegalArgumentException
+     *         throws when file could not be found.
+     */
     private Instances loadData(String filePath) throws Exception {
         // Make sure the path given actually exists
         if (! new File(filePath).exists()){
@@ -42,6 +69,12 @@ public class WrapClassifier{
         return data;
     }
 
+    /**
+     * Load classifier from resources' file.
+     * @return the Logistic classifier
+     * @throws IOException
+     *         Throws when method failed to read from file
+     */
     public Classifier loadClassifier() throws IOException {
         // Get Logistic Model from the resources file
         URL url = getClass().getResource("/Logistic_Model.model");
@@ -54,6 +87,14 @@ public class WrapClassifier{
         }
     }
 
+    /**
+     * Classify the given data with the given model.
+     * @param model
+     *        the weka model
+     * @param data
+     *        weka instances
+     * @return labeled instances
+     */
     public Instances classifyData(Classifier model, Instances data) {
         Instances labeled = new Instances(data);
         // label each instance from data
