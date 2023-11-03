@@ -1,4 +1,4 @@
-package nl.bioninf;
+package nl.bioinf;
 
 import java.io.IOException;
 import java.util.ArrayList;

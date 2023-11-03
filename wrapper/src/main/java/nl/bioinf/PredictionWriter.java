@@ -1,4 +1,4 @@
-package testing;
+package nl.bioinf;
 
 import weka.core.Instances;
 
@@ -23,7 +23,7 @@ public class PredictionWriter {
             }
             writer.close();
         } catch (IOException e) {
-            System.out.println("A problem occurred while writing to file");
+            System.err.println("A problem occurred while writing to file " + e.getMessage());
         }
     }
 
