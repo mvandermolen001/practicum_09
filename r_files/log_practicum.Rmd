@@ -424,7 +424,7 @@ Stacking the simple algorithms together appears to have boosted their performanc
 
 ```{r}
 #Create matrix with relevant values
-data.comparison <- matrix(c(percentage.correct$mean[percentage.correct$algorithm == "RandomForest"], percentage.correct.final$mean[percentage.correct.final$algorithm == "RandomForest"], percentage.correct$mean[percentage.correct$algorithm == "Logistic"], percentage.correct.final$mean[percentage.correct.final$algorithm == "Logistic"]), ncol=2)
+data.comparison <- matrix(c(percentage.correct$mean[percentage.correct$algorithm == "RandomForest"], percentage.correct.adjusted$mean[percentage.correct.adjusted$algorithm == "RandomForest"], percentage.correct$mean[percentage.correct$algorithm == "Logistic"], percentage.correct.adjusted$mean[percentage.correct.adjusted$algorithm == "Logistic"]), ncol=2)
 #Add names to the table
 colnames(data.comparison) <- c("RandomForest", "Logistic")
 rownames(data.comparison) <- c("Non adjusted", "Adjusted")
