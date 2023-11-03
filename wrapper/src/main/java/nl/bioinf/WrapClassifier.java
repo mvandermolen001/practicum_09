@@ -7,6 +7,7 @@ import weka.core.converters.ConverterUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 public class WrapClassifier{
 
@@ -42,9 +43,12 @@ public class WrapClassifier{
     }
 
     public Classifier loadClassifier() throws IOException {
+        // Get Logistic Model from the resources file
+        URL url = getClass().getResource("/Logistic_Model.model");
         try {
+            assert url != null;
             // Return a classifier with the resource file
-            return (Classifier) SerializationHelper.read("D:\\java_practice\\data\\Logistic_Model.model");
+            return (Classifier) SerializationHelper.read(url.getFile());
         } catch (Exception e) {
             throw new IOException("Could not read from file..." + e.getMessage());
         }
