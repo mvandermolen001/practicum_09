@@ -78,6 +78,7 @@ public class WrapClassifier{
     public Classifier loadClassifier() throws IOException {
         // Get Logistic Model from the resources file
         URL url = getClass().getResource("/Logistic_Model.model");
+        // getClass().getResourceAsStream(url)
         try {
             assert url != null;
             // Return a classifier with the resource file
