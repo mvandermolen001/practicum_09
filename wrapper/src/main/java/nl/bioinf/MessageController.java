@@ -1,12 +1,24 @@
 package nl.bioinf;
 
+/**
+ * MessageController class, controls flow of program and throws messages to give user feedback on process
+ * @author Margriet
+ */
 public class MessageController {
     private final OptionProvider optionProvider;
 
+    /**
+     * Constructor for MessageController, it needs one instance of the optionProvider class.
+     * @param optionProvider
+     *        an instance of the optionProvider class
+     */
     public MessageController(OptionProvider optionProvider) {
         this.optionProvider = optionProvider;
     }
 
+    /**
+     * start method to start the process. Prints lines to ensure user gets feedback on the program.
+     */
     public void start() {
         if (optionProvider == null) {
             throw new IllegalStateException("Please make sure to provide an optionProvider.");
@@ -34,12 +46,12 @@ public class MessageController {
             SingleInstanceClassifier singleClassifier = new SingleInstanceClassifier(optionProvider.getSingleCaseDoubles(),
                     optionProvider.getSpecies(), optionProvider.getSex());
             if(optionProvider.hasWrite()){
-                PredictionWriter writer = new PredictionWriter(singleClassifier.gatherData(), "predicted_instance.csv");
+                PredictionWriter writer = new PredictionWriter(singleClassifier.start(), "predicted_instance.csv");
                 writer.writeToFile();
                 System.out.println("Successfully wrote instance to file.");
             }
             else {
-                System.out.println(singleClassifier.gatherData());
+                System.out.println(singleClassifier.start());
             }
         }
         System.out.println("Task completed.");

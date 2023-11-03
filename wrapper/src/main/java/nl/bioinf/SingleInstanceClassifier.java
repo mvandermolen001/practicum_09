@@ -9,19 +9,36 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 
+/**
+ * SingleInstanceClassifier classifies the single instances given by the user
+ * @author Margriet
+ */
 public class SingleInstanceClassifier{
 
     private ArrayList<Double> doubleData = new ArrayList<>();
     private final String species;
     private final String sex;
 
+    /**
+     * Constructor for SingleInstanceClassifier.
+     * @param doubleData
+     *        An array list with double values
+     * @param species
+     *        the species of a penguin
+     * @param sex
+     *        the sex of a penguin
+     */
     public SingleInstanceClassifier(ArrayList<Double> doubleData, String species, String sex){
         this.doubleData = doubleData;
         this.species = species;
         this.sex = sex;
     }
 
-    public Instances gatherData() {
+    /**
+     * start controls flow of the process
+     * @return predicted weka instances
+     */
+    public Instances start() {
         ArrayList<Attribute> pass_on = createAttributes();
         Instances data = createInstances(pass_on);
         try {
@@ -32,6 +49,11 @@ public class SingleInstanceClassifier{
     }
 
 
+    /**
+     * createAttributes creates all the needed attributes for the model to use
+     * @return attributeList -
+     *         an ArrayList with attributes
+     */
     private ArrayList<Attribute> createAttributes() {
 
         ArrayList<Attribute> attributeList = new ArrayList<Attribute>(3);
@@ -67,6 +89,13 @@ public class SingleInstanceClassifier{
         return attributeList;
     }
 
+    /**
+     * createInstance uses the user-given data to create a weka instance.
+     * @param attributeList
+     *        an array list with the attributes
+     * @return data -
+     *         the user-given single case now as a weka instance
+     */
     private Instances createInstances(ArrayList<Attribute> attributeList){
         Instances data = new Instances("SingleCaseData",attributeList,1);
         Instance inst = new DenseInstance(data.numAttributes());
@@ -83,6 +112,15 @@ public class SingleInstanceClassifier{
 
     }
 
+    /**
+     * @param data
+     *        a weka instance
+     * @return predicted instance -
+     *         the single case now predicted using the created model
+     *
+     * @throws IOException
+     *         when model fails to load
+     */
     private Instances classifyInstance(Instances data) throws IOException {
         WrapClassifier classifier = new WrapClassifier();
         Classifier model = classifier.loadClassifier();

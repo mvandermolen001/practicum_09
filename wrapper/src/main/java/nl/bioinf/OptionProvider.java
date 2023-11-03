@@ -5,6 +5,10 @@ import org.apache.commons.cli.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * OptionProvider class for parsing user-given arguments using Apache CLI.
+ * @author Margriet
+ */
 public class OptionProvider {
     private static final String HELP = "help";
 
@@ -19,16 +23,27 @@ public class OptionProvider {
     private String sex;
 
 
+    /**
+     * Constructor to create clArguments with the given user arguments.
+     * @param args
+     *      user arguments
+     */
     public OptionProvider(final String[] args){
         this.clArguments = args;
         start();
     }
 
+    /**
+     * start method to control flow of process
+     */
     private void start() {
         buildOptions();
         processCommandLine();
     }
 
+    /**
+     * buildOptions methods, responsible for building the options that the user can provide on the command line.
+     */
     private void buildOptions(){
         this.options = new Options();
         Option helpOption = new Option("h", HELP, false, "Prints this message");
@@ -47,6 +62,10 @@ public class OptionProvider {
         options.addOption(writeOption);
     }
 
+    /**
+     * processCommandLine method, responsible for processing the given user arguments so that they are ready to be used
+     * in the future steps.
+     */
     private void processCommandLine(){
         CommandLineParser parser = new DefaultParser();
         try {
@@ -65,37 +84,71 @@ public class OptionProvider {
         }
     }
 
+    /**
+     * requestHelp checks whether help is requested
+     * @return boolean
+     *         true or false value depended on if the user has provided the help option
+     */
     public boolean requestHelp() {
         return this.commandLine.hasOption(HELP);
     }
 
+    /**
+     * hasWrite checks whether the write option is provided
+     * @return booelean
+     *         true or false value depended on if the user has provided the write option
+     */
     public boolean hasWrite(){
         return this.commandLine.hasOption("w");
     }
 
+    /**
+     * printHelp method for formatting the help option.
+     */
     public void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("WrapClassifier", options);
     }
 
+    /**
+     * turnToDouble turns string to double values.
+     * @param sOptions
+     *        A sublist of the singlecase arguments that need to be doubles.
+     */
     private void turnToDouble(List<String> sOptions){
         for (String item:sOptions) {
             SingleCaseDoubles.add(Double.parseDouble(item));
         }
     }
 
+    /**
+     * getSingleCaseDoubles returns the singleCaseDoubles list
+     * @return an ArrayList with doubles
+     */
     public ArrayList<Double> getSingleCaseDoubles() {
         return (ArrayList<Double>) SingleCaseDoubles;
     }
 
+    /**
+     * getFilePath gathers the given filepath
+     * @return filepath
+     */
     public String getFilepath() {
         return filepath;
     }
 
+    /**
+     * returns the user given species of penguin
+     * @return species
+     */
     public String getSpecies() {
         return species;
     }
 
+    /**
+     * returns the user given sex of the penguin
+     * @return sex
+     */
     public String getSex() {
         return sex;
     }

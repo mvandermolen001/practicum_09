@@ -5,15 +5,29 @@ import weka.core.Instances;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * PredictionWriter class, writes the predicted instance to a file
+ * @author Margriet
+ */
 public class PredictionWriter {
     Instances data;
     String filename;
 
+    /**
+     * Constructor for the PredictionWriter
+     * @param data
+     *        Weka instances
+     * @param filename
+     *        The name of the file to write to
+     */
     public PredictionWriter(Instances data, String filename){
         this.data = data;
         this.filename = filename;
     }
 
+    /**
+     * writeToFile method writes the weka instances to the file
+     */
     public void writeToFile(){
         try {
             FileWriter writer = new FileWriter(filename);
