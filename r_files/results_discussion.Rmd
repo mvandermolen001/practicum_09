@@ -192,7 +192,14 @@ In figure 1 the amount of Chinstraps was significantly lower than the other spec
 
 While looking at the histograms of figure 3, it was noted that some of the figures have more than one peak which can be explained by the fact that there are several species in this dataset. The scatterplots in figure 2 also showed several 'groups' forming in the culmen depth, culmen length, flipper length, and body mass characteristic. It is likely that these peaks and groups are caused by the fact that different species have a different distributions of the physical characteristics. Something that is visible in the boxplot of figure 2 with the flipper length and body mass attributes. Here it is already visible that between species there is some difference and within species, there also seems to be a difference between the sexes. A two way anova proves there is a significant difference between the penguin sexes and species, along with that fact that the interaction between sex and species also has an effect on the two attributes. Looking back to the histograms of figure 3, there's now a possible explanation for the different peaks that are shown within the graph. 
 
-The scatter plots in figure 3 also showed correlation. In the model, correlation can be used to predict certain attributes. Flipper length and body mass have a strong positive correlation, if a penguin has more mass it will likely need broader flippers to move forward. Correlation combined with the findings of the anova could mean that flipper length and body mass could be attributes of interest for our model.
+The scatter plots in figure 3 also showed correlation. In the model, correlation can be used to predict certain attributes. Flipper length and body mass have a strong positive correlation, if a penguin has more mass it will likely need broader flippers to move forward. Correlation combined with the findings of the anova could mean that flipper length and body mass could be attributes of interest for our model. It is likely that due to the correlation between flipper length and body mass, flipper length was able to be removed later in the process, which led to an increase in the accuracy of the algorithm which can be seen in table 4 and the removal of the flipper length attribute for predicting penguin sex.
+
+In figure 4 all algorithms were first ran with the default values, as can be seen all algorithms outperformed ZeroR, however when taking into account the initial goal of the research, only the top two performing algorithm were chosen for the next step. From the remaining algorithms, Zero-R, One-R, J48, and IBk were used for stacking, which led to creation of figure 5, where certain parameters were chosen to 'optimize'. Once more, Logistic outperformed the rest which is why this algorithm was used to run the attribute selection tool with. The other algorithms were not used for attribute selection which did result in a missed opportunity to see if these other algorithms could benefit from better attribute selection. In the end, taking into account the scores in table 4, the ROC curve made in figure 6, and the fact that it is a relatively simple algorithm, Logistic was chosen as the algorithm for the final product.
+
+For parameter optimization, there was a focus on making sure there was no overfitting going on. This meant iteration depth was altered for the RandomForest and Logistic algorithm for stopping the algorithm early. More parameters could have been optimized but due to the relatively short timespan, it was decided just the iteration depth would be optimized.
+
+
+
 
 
 \newpage
@@ -201,7 +208,7 @@ The scatter plots in figure 3 also showed correlation. In the model, correlation
 
 The EDA showed that different species have different averages across the attributes which causes different peaks when looked at in a histogram. Within the species, male penguins differ significantly from their female counterparts.
 
-Flipper length, body mass, and culmen depth due to their correlation will be useful attributes for the model. Flipper length and body mass in particular as these attributes were shown to be significantly different within species.
+Flipper length, body mass, and culmen depth due to their correlation will be useful attributes for the model. Body mass in particular as these attributes were shown to be significantly different within species.
 
 
 
