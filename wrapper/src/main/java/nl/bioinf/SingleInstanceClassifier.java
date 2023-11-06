@@ -60,9 +60,9 @@ public class SingleInstanceClassifier{
 
         // Create a list with the given values for the species
         ArrayList<String> species_list = new ArrayList<String>();
-        species_list.add("Adelie");
-        species_list.add("Chinstrap");
-        species_list.add("Gentoo");
+        species_list.add("ADELIE");
+        species_list.add("CHINSTRAP");
+        species_list.add("GENTOO");
         // and then create the species attribute with the list
         Attribute species = new Attribute("species", species_list);
 
