@@ -17,14 +17,6 @@ dependencies {
     implementation group: 'commons-cli', name: 'commons-cli', version: '1.5.0'
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDirs "src/main/resources"
-        }
-    }
-}
-
 jar {
     manifest {
         attributes "Main-Class": "nl.bioinf.ArgsRunner"
