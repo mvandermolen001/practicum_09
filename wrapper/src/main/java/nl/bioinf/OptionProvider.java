@@ -53,7 +53,7 @@ public class OptionProvider {
                 "Please make sure the argument uses the following order: Species, culmen depth, culmen length, bodymass," +
                 "delta N15, delta N13, Sex");
         Option writeOption = new Option("w","write", false, "If option given, the result will be written to a file");
-        SingleCase.setArgs(8);
+        SingleCase.setArgs(7);
         SingleCase.setValueSeparator(',');
 
         options.addOption(helpOption);
@@ -74,7 +74,7 @@ public class OptionProvider {
                 List<String> singlecaseString = List.of(commandLine.getOptionValues("s"));
                 turnToDouble(singlecaseString.subList(1, 6));
                 this.species = singlecaseString.get(0);
-                this.sex = singlecaseString.get(7);
+                this.sex = singlecaseString.get(6);
             }
             if (this.commandLine.hasOption("f")){
                 this.filepath = commandLine.getOptionValue("f");
