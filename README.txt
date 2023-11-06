@@ -12,8 +12,9 @@ detail the steps taken to produce the tool.
 Before using this script, make sure to understand the command line arguments. These are as follows:
 
 -f,--FILEPATH -arg-		Requests the path to a batch file, this file has
-				to be an arff. This file must include the following attributes: Species (Gentoo, Adelie, Chinstrap), culmen depth,
-                		culmen length, bodymass, delta N15, delta N13, sex (MALE, FEMALE)
+				to be an arff. This file must include the following attributes: Species 
+				(Gentoo, Adelie, Chinstrap), culmen depth, culmen length, bodymass, delta N15,
+				delta N13, sex (MALE, FEMALE)
  -h,--help			Requests help 
  -s,--SINGLECASE -arg-		Requests the information needed to classify a
                 		single case. Fill in your values and separate
