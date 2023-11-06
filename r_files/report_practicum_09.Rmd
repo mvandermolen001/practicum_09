@@ -1,8 +1,10 @@
 ---
-title: "Results_and_Discussion"
+title: "A machine learning approach to predicting penguin sex"
 author: "Margriet van der Molen"
 date: "2023-09-29"
-output: pdf_document
+output:
+ pdf_document:
+   toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -37,6 +39,25 @@ penguin.data$Species_Sex <- paste(penguin.data$Species, penguin.data$Sex, sep = 
 ```
 
 ```{r}
+result.explorer <- read.csv("data/test.csv", header = T)
+
+#Turn Key_Scheme into factor for easy plotting
+result.explorer$Key_Scheme <- as.factor(result.explorer$Key_Scheme) 
+levels(result.explorer$Key_Scheme) <- c("NaiveBayes","Logistic", 
+                                        "SMO","IBk", "OneR","ZeroR","J48","RandomForest")
+```
+
+```{r}
+adjusted.results <- read.csv("data/adjusted_para_results.csv", header = T)
+
+#Turn Key_Scheme into factor for easy plotting
+adjusted.results$Key_Scheme <- as.factor(adjusted.results$Key_Scheme) 
+#Turn Key_Scheme into factor for easy plotting
+levels(adjusted.results$Key_Scheme) <- c("Logistic","Stacking", 
+                                        "ZeroR","RandomForest")
+```
+
+```{r}
 final.results <- read.csv("data/final_results.csv", header = T)
 
 #Turn Key_Scheme into factor for easy plotting
@@ -47,6 +68,58 @@ levels(final.results$Key_Scheme) <- c("Logistic","Stacking",
 #Add new column to the data frame that combines Key Scheme and Key Dataset
 final.results$Key_Data_Scheme <- as.factor(paste(final.results$Key_Dataset, final.results$Key_Scheme, sep = "_"))
 ```
+\newpage
+
+# Introduction
+
+Most species of penguins appear not to prone to sexual dimporhism. This is to say, the male penguins don't look very different from the female penguins and even their behavior can be quite similar. This causes an issue when researching penguins as, sometimes, male penguins are identified to be female penguins or the other way around. These issues can be especially troubling when breeding programs might need to be put up. A problem that will become more prevalent as temperatures rise and certain penguin species' habitats disappear. 
+
+In an attempt to aid the researchers in distinguishing male and female penguins, machine learning could well be an option to predict the sex of a penguin. The predictions will be based on physical characteristics of the penguins, and these penguins will come from 3 different species. As such, this paper will focus on answering the following question:
+
+"How accurately can a machine learning model predict the sex of a penguin when given the measurements of some physical attributes"
+
+
+\newpage
+
+
+# Materials and Methods
+
+In this section, the materials and methods used to set up the tool are discussed.
+
+## Materials
+
+This paper used Weka\cite{WEKA2016} (version 3.8) for the machine learning algorithms, it also used R (version 4.0.4) for graphing, logging, and reporting the findings. The data that was used to train the model with is, predictably, about penguins, and was originally used in a paper about ecological sexual dimorphism where they examined if environmental variability is associated with differences in the foraging niches of the male and female penguins\cite{Gorman2014}. The data contains information about the location, physical characteristics, sample data, and data about the egg, of 345 penguins on Antartica. While all penguins were from the Anvers region, they were not all from the same island. All the penguins were nesting and blood samples, measurements, and molecular sexing, was all done when they were at the one-egg stage.
+
+```{r}
+info.data <- read.csv("info_data.csv")
+
+pander(info.data, caption = "A table with the name of the attribute and the description 
+       next to it. When relevant, the unit is also givin in the description.")
+```
+
+The delta C-13 and N-15 values were found using an elemental analyzer interfaced with an isotope ratio mass spectrometer at the Stable Isotope Facility, University of California, and calculated using the following equation:
+
+$$\delta{N15 or C13}=( \frac{\delta R_{sample}} {\delta R_{standard}} - 1 ) * 1000$$
+
+Here the R_sample is the ratio of found C-13 to C - 12 or N-15 to N-14 in the sample. The R_standard is the standard ratio for international standards (Vienna PeeDee Belemnite for carbon, and atmospheric N2 (Air) for nitrogen).
+
+Furthermore, the wrapper was made with Java (version 21), using the WEKA package(version 3.8). All code and information such as the logbook can be found within the [github repository](https://github.com/mvandermolen1/practicum_09) for this paper.
+
+\newpage
+
+## Methods
+
+First an exploratory data analysis (EDA) was done to determine what attributes may be of value for the algorithm. This was done through the creation of box plots, bar plots, scatter plots, and two-way ANOVAs.
+
+Accuracy and simplicity of algorithm were important qualities for the algorithm. Accuracy due to the nature of the research question, and simplicity to make sure the process of assigning the label is well understood. From these two, accuracy would be more important and trading in some simplicity for accuracy was acceptable. All algorithms were 10-fold cross validated.
+
+In the first step the following algorithms were used to determine how well the algorithms ran with their default values: ZeroR, OneR, NaiveBayes, J48, IBk, SMO, Logistics, and RandomForest.
+
+After determining the two top performing algorithms in the first step, the parameters of these algorithms were optimised using the CVParameterSelection tool. The iteration depth was adjusted. Stacking was used to allow the weaker performing algorithms to perform better, this algorithm was made up from ZeroR, OneR, J48, and IBk, where J48 was also used as the metalearner. The parameters of the J48 and IBk algorithm were also optimized using the previously mentioned tool.
+
+The tool WrapperSubsetEval with the Logistic algorithm was used for attribute selection. By looking at what attributes were used most often when classifying a penguin into the categories, all attributes from 80% and above were chosen. With this a final assessment was done, an algorithm was chosen. A ROC plot was made to further analyze the results by first running the explorer with the Logistic algorithm and its mentioned parameters with the adjusted data set, the female penguin was set to the positive value, and finally the plot was made using R.
+
+\newpage
 
 # Results
 
@@ -73,6 +146,8 @@ plot_grid(plot.flip.length, plot.body.mass, ncol = 1)
 ```
 
 When looking at figure 2, it is shown that Chinstrap and Gentoo penguins are more prone to sexual dimorphism in terms of the flipper length attribute than the Adelie penguins, though even the Adelie penguins appear to have a difference in body mass. With the information of the boxplot shown in figure 2, a two-way Anova was done.  
+
+\newpage
 
 
 ```{r}
@@ -104,7 +179,9 @@ ggpairs(penguin.data[c(9:12, 14, 15)],  columnLabels = c("Culmen length(mm)",
 
 Some scatter plots in figure 3 seem better divided than others. Body mass and flipper length in particular shows a strong positive correlation as the correlation score proves. In the plot that shows culmen depth and body mass, there's a notable division between two groups. The same occurs with flipper length and culmen depth.
 
-In figure 3, the culmen length histogram appears to have two very clear peaks. This can also be applied to the culmen depth histogram. For flipper length, there's a peak at, approximately, 190 mm and another at 210 and 220 mm for both male and female penguins. When looking at body mass, female penguins tend to range between 2500 gram to around 5000 gram where as the male penguins range between 3500 gram and 6500 gram. The delta N-15 attribute peaks slightly at the values between 8 and 8.5 mille, and gradually declines in height. For the delta C-13 attribute, there is one peak at approximately -26 per mille of the plot, and after the peak it becomes more uniform in shape.
+In figure 3, the culmen length histogram appears to have two very clear peaks. This can also be applied to the culmen depth histogram. For flipper length, there's a peak at, approximately, 190 mm and another at 210 and 220 mm for both male and female penguins. When looking at body mass, female penguins tend to range between 2500 gram to around 5000 gram where as the male penguins range between 3500 gram and 6500 gram. The delta N-15 attribute peaks slightly at the values between 8 and 8.5 mille, and gradually declines in height. For the delta C-13 attribute, there is one peak at approximately -26 per mille of the plot, and after the peak it becomes more uniform in 
+
+\newpage
 
 
 After determining what attributes may be useful, all previously mentioned algorithms were ran, taking into account the simplicity, and accuracy of these algorithms.
@@ -138,6 +215,8 @@ ggplot(percentage.correct.adjusted, aes(algorithm, mean)) + geom_point() +
 In figure 5, the finer details of the plot are hard to see as the values are much too close to each other. However, again, all algorithms are out-performing Zero-R. Stacking the simpler algorithms together has boosted their performance as they are now able to catch up to RandomForest and Logistic.
 
 To get a clearer view on the scores a table was made that compared the top two performing algorithms, RandomForest and Logistic, with the scores before and after adjusting the parameters.
+
+\newpage
 
 ```{r}
 #Create matrix with relevant values
@@ -196,9 +275,9 @@ The scatter plots in figure 3 also showed correlation. In the model, correlation
 
 In figure 4 all algorithms were first ran with the default values, as can be seen all algorithms outperformed ZeroR, however when taking into account the initial goal of the research, only the top two performing algorithm were chosen for the next step. From the remaining algorithms, Zero-R, One-R, J48, and IBk were used for stacking, which led to creation of figure 5, where certain parameters were chosen to 'optimize'. Once more, Logistic outperformed the rest which is why this algorithm was used to run the attribute selection tool with. The other algorithms were not used for attribute selection which did result in a missed opportunity to see if these other algorithms could benefit from better attribute selection. In the end, taking into account the scores in table 4, the ROC curve made in figure 6, and the fact that it is a relatively simple algorithm, Logistic was chosen as the algorithm for the final product.
 
-For parameter optimization, there was a focus on making sure there was no overfitting going on. This meant iteration depth was altered for the RandomForest and Logistic algorithm for stopping the algorithm early. More parameters could have been optimized but due to the relatively short timespan, it was decided just the iteration depth would be optimized.
+For parameter optimization, there was a focus on making sure there was no overfitting going on. This meant iteration depth was altered for the RandomForest and Logistic algorithm for stopping the algorithm early. More parameters could have been optimized but due to the relatively short time span, it was decided just the iteration depth would be optimized.
 
-
+It is worth keeping in mind that this data only carried three species of penguins, and thus any other species are not supported in this algorithm. For future research, it may be worth looking into a way to classify the penguins without the species attribute as well as the delta C13 and delta N15 attributes as these two attributes were harder to accurately measure than the other numerical attributes.
 
 
 
@@ -208,7 +287,26 @@ For parameter optimization, there was a focus on making sure there was no overfi
 
 The EDA showed that different species have different averages across the attributes which causes different peaks when looked at in a histogram. Within the species, male penguins differ significantly from their female counterparts.
 
-Flipper length, body mass, and culmen depth due to their correlation will be useful attributes for the model. Body mass in particular as these attributes were shown to be significantly different within species.
+Flipper length, body mass, and culmen depth due to their correlation will be useful attributes for the model. Likely due to the high correlation between body mass and flipper length, the flipper length attribute was left out. 
 
+The Logistic model with species, culmen length, culmen depth, bodymass, delta C13, and delta N15, can predict the sex of the penguin with around 92% accuracy.
+
+\newpage
+
+\begin{thebibliography}{9}
+
+\bibitem{WEKA2016}
+Eibe Frank, Mark A. Hall, and Ian H. Witten (2016). \textit {The WEKA Workbench. Online Appendix for "Data Mining: Practical Machine Learning Tools and Techniques", Morgan Kaufmann, Fourth Edition, 2016.}
+
+\bibitem{Pander}
+Daróczi G, Tsegelskyi R (2022).: \textit {pander:  An R ’Pandoc’ Writer. R package version 0.6.5},https://CRAN.R-project.org/package=pander
+
+\bibitem{Gorman2014}
+Gorman KB, Williams TD, Fraser WR (2014)\textit {Ecological Sexual Dimorphism and Environmental Variability within a Community of Antarctic Penguins (Genus Pygoscelis). PLoS ONE 9(3): e90081.}, doi:10.1371/journal.pone.0090081
+
+
+
+
+\end{thebibliography}
 
 
