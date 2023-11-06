@@ -7,7 +7,7 @@ import weka.core.converters.ConverterUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.util.Objects;
 
 /**
  * Wrapper classifier class. Classifies the given data using the model provided in the resources' folder.
@@ -64,25 +64,23 @@ public class WrapClassifier{
         }
         ConverterUtils.DataSource reader = new ConverterUtils.DataSource(filePath);
         Instances data = reader.getDataSet();
-        // Sets the class, what the program will predict. Typically, this is the last attribute.
+        // Sets the class, what the program will predict. Assumes this is the last attribute.
         data.setClassIndex(data.numAttributes() - 1);
         return data;
     }
 
     /**
-     * Load classifier from resources' file.
+     * Load classifier from resources' directory.
      * @return the Logistic classifier
      * @throws IOException
-     *         Throws when method failed to read from file
+     *         Throws when method failed to read from stream
      */
     public Classifier loadClassifier() throws IOException {
-        // Get Logistic Model from the resources file
-        URL url = getClass().getResource("/Logistic_Model.model");
-        // getClass().getResourceAsStream(url)
+        // Get Logistic Model from the resources directory as a stream
+        var stream = Objects.requireNonNull(getClass().getResource("/Logistic_Model.model")).openStream();
         try {
-            assert url != null;
-            // Return a classifier with the resource file
-            return (Classifier) SerializationHelper.read(url.getFile());
+            // Return a classifier with the stream
+            return (Classifier) SerializationHelper.read(stream);
         } catch (Exception e) {
             throw new IOException("Could not read from file..." + e.getMessage());
         }
