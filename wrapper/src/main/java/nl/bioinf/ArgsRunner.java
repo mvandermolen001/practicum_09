@@ -15,7 +15,7 @@ public class ArgsRunner {
     public static void main(final String[] args) {
         try {
             OptionProvider op = new OptionProvider(args);
-            if (op.requestHelp()) {
+            if (op.requestHelp() || op.clArguments.length == 0) {
                 op.printHelp();
                 return;
             }

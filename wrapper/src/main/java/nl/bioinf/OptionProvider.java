@@ -14,7 +14,7 @@ public class OptionProvider {
 
     final List<Double> SingleCaseDoubles = new ArrayList<>();
 
-    private final String[] clArguments;
+    public final String[] clArguments;
     private Options options;
     private CommandLine commandLine;
 
@@ -73,8 +73,8 @@ public class OptionProvider {
             if (this.commandLine.hasOption("s")){
                 List<String> singlecaseString = List.of(commandLine.getOptionValues("s"));
                 turnToDouble(singlecaseString.subList(1, 6));
-                this.species = singlecaseString.get(0);
-                this.sex = singlecaseString.get(6);
+                this.species = singlecaseString.get(0).toUpperCase();
+                this.sex = singlecaseString.get(6).toUpperCase();
             }
             if (this.commandLine.hasOption("f")){
                 this.filepath = commandLine.getOptionValue("f");
