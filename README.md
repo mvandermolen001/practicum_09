@@ -1,13 +1,16 @@
 # Practicum thema 09
-06-11-2023
-Java 17.0.8
+
+06-11-2023  
+Java 17.0.8  
 
 
 # Description
+
 This repository contains the files for a tool that predicts penguin sex based on several physical characteristics. It also contrains r files, these files detail the steps taken to produce the tool.  
 
 
 # Installation
+
 Before using this script, make sure to understand the command line arguments. These are as follows:
 
 * -f,--FILEPATH ARGUMENT	| Requests the path to a batch file, this file has
@@ -28,6 +31,7 @@ Before using this script, make sure to understand the command line arguments. Th
 	
 
 # Usage
+
 For a ready-to-use example on how to run this tool, please move to the wrapper folder and use:  
 #### java -jar wrapper-1.0-SNAPSHOT-all.jar "Gentoo","34","45","9000","22","44","MALE"		  
 
@@ -36,5 +40,6 @@ Or:
 
 
 # Support
+
 For any reported issues or help: m.van.der.molen@st.hanze.nl
 
