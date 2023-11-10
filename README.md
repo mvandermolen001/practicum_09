@@ -34,12 +34,12 @@ Before using this script, make sure to understand the command line arguments. Th
 
 For a ready-to-use example on how to run this tool, please move to the wrapper folder and use:  
 ```
-java -jar wrapper-1.0-SNAPSHOT-all.jar "Gentoo","34","45","9000","22","44","MALE"
+java -jar ./wrapper/wrapper-1.0-SNAPSHOT-all.jar -s "Gentoo","34","45","9000","22","44","MALE"
 ```	  
 
 Or: 
 ```
-java -jar ./wrapper/wrapper-1.0-SNAPSHOT-all.jar ./r_files/data/adjusted_penguin_data.arff		
+java -jar ./wrapper/wrapper-1.0-SNAPSHOT-all.jar -f ./r_files/data/adjusted_penguin_data.arff		
 ```
 
 # Support
